@@ -1,134 +1,332 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Cucumber AI</title>
 
+
   <style>
+
     * {
       box-sizing: border-box;
     }
 
+
     body {
+
       margin: 0;
+
       min-height: 100vh;
-      background: #0f1115;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #1b2630 0%,
+          #0f1115 45%,
+          #090a0c 100%
+        );
+
       color: white;
-      font-family: Arial, sans-serif;
+
+      font-family:
+        Arial,
+        sans-serif;
+
       display: flex;
+
       justify-content: center;
+
       align-items: center;
     }
 
+
     .app {
+
       width: 100%;
+
       max-width: 600px;
-      padding: 30px 20px;
+
+      padding: 30px 20px 40px;
+
       text-align: center;
     }
 
+
     .robot {
+
       font-size: 70px;
+
       margin-bottom: 5px;
     }
 
+
     h1 {
+
       margin: 0;
+
       font-size: 30px;
+
+      font-weight: 600;
     }
 
+
     #status {
-      margin: 18px 0 30px;
+
+      margin:
+        18px
+        0
+        30px;
+
       color: #aaa;
+
       min-height: 25px;
     }
 
+
     #micButton {
+
       width: 180px;
+
       height: 180px;
+
       border-radius: 50%;
+
       border: none;
-      background: #22262c;
+
+      background: #20252b;
+
       color: white;
+
       font-size: 70px;
+
       cursor: pointer;
+
       transition: 0.2s;
-      box-shadow: 0 0 35px rgba(255,255,255,0.12);
+
+      box-shadow:
+        0 0 35px
+        rgba(
+          255,
+          255,
+          255,
+          0.12
+        );
     }
+
+
+    #micButton:active {
+
+      transform:
+        scale(0.94);
+    }
+
 
     #micButton.listening {
-      background: #b71c1c;
-      box-shadow: 0 0 55px rgba(244,67,54,0.6);
-      animation: pulse 1.1s infinite;
+
+      background:
+        #b71c1c;
+
+      box-shadow:
+        0 0 60px
+        rgba(
+          244,
+          67,
+          54,
+          0.65
+        );
+
+      animation:
+        pulse
+        1.1s
+        infinite;
     }
+
 
     @keyframes pulse {
-      0%   { transform: scale(1); }
-      50%  { transform: scale(1.06); }
-      100% { transform: scale(1); }
+
+      0% {
+        transform:
+          scale(1);
+      }
+
+      50% {
+        transform:
+          scale(1.06);
+      }
+
+      100% {
+        transform:
+          scale(1);
+      }
+
     }
+
 
     #question {
+
       width: 100%;
+
       margin-top: 30px;
+
       padding: 15px;
+
       border-radius: 12px;
-      border: 1px solid #333;
-      background: #1a1d22;
+
+      border:
+        1px solid
+        #333;
+
+      background:
+        #191c20;
+
       color: white;
+
       font-size: 18px;
+
+      outline: none;
     }
 
+
+    #question::placeholder {
+
+      color: #777;
+    }
+
+
     #answer {
+
       margin-top: 25px;
+
       padding: 20px;
+
       border-radius: 15px;
-      background: #191c20;
+
+      background:
+        rgba(
+          255,
+          255,
+          255,
+          0.06
+        );
+
       text-align: left;
+
       line-height: 1.7;
+
       font-size: 18px;
+
       min-height: 100px;
+
       white-space: pre-wrap;
     }
+
+
+    .hint {
+
+      margin-top: 20px;
+
+      color: #666;
+
+      font-size: 14px;
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
+
 <div class="app">
 
-  <div class="robot">🤖</div>
 
-  <h1>Cucumber AI</h1>
-
-  <div id="status">
-    พร้อมครับ กดไมค์แล้วพูดได้เลย
+  <div class="robot">
+    🤖
   </div>
 
-  <button id="micButton">🎙️</button>
+
+  <h1>
+    Cucumber AI
+  </h1>
+
+
+  <div id="status">
+
+    พร้อมครับ
+    กดไมค์แล้วพูดได้เลย
+
+  </div>
+
+
+  <button
+    id="micButton"
+    type="button"
+  >
+
+    🎙️
+
+  </button>
+
 
   <input
     id="question"
     type="text"
     placeholder="หรือพิมพ์คำถาม..."
+    autocomplete="off"
   >
 
+
   <div id="answer">
+
     รอคำถามจากคุณ...
+
   </div>
+
+
+  <div class="hint">
+
+    กดไมค์ →
+    พูด →
+    AI วิเคราะห์ →
+    AI พูดตอบ
+
+  </div>
+
 
 </div>
 
 
+
 <script>
 
-const APPS_SCRIPT_URL = "ใส่ Web App URL ของ Apps Script ตรงนี้";
+
+/* =====================================================
+   URL ของ Google Apps Script
+   ===================================================== */
+
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxuuetkVQLCHCr0IF2RF_1o11jXsW9jaORL6UvoLV1g_d2x35k8wZoeIpai-nFpiHbv/exec";
 
 
-let recognition;
-let listening = false;
+
+/* =====================================================
+   Speech Recognition
+   ===================================================== */
+
+let recognition =
+  null;
+
+let listening =
+  false;
 
 
 const SpeechRecognition =
@@ -136,248 +334,602 @@ const SpeechRecognition =
   window.webkitSpeechRecognition;
 
 
+
 if (!SpeechRecognition) {
 
-  document.getElementById("status").innerText =
+  document.getElementById(
+    "status"
+  ).innerText =
     "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
+
 
 } else {
 
-  recognition = new SpeechRecognition();
 
-  recognition.lang = "th-TH";
-
-  recognition.continuous = false;
-
-  recognition.interimResults = false;
+  recognition =
+    new SpeechRecognition();
 
 
-  recognition.onstart = function () {
-
-    listening = true;
-
-    document
-      .getElementById("micButton")
-      .classList.add("listening");
-
-    document.getElementById("status").innerText =
-      "🎙️ กำลังฟังครับ...";
-
-  };
+  recognition.lang =
+    "th-TH";
 
 
-  recognition.onresult = function (event) {
-
-    const text =
-      event.results[0][0].transcript;
-
-    document.getElementById("question").value =
-      text;
-
-    stopListening();
-
-    askAI(text);
-
-  };
+  recognition.continuous =
+    false;
 
 
-  recognition.onerror = function (event) {
-
-    console.log(event);
-
-    stopListening();
-
-    document.getElementById("status").innerText =
-      "รับเสียงไม่ได้ครับ ลองกดไมค์อีกครั้ง";
-
-  };
+  recognition.interimResults =
+    false;
 
 
-  recognition.onend = function () {
+  recognition.maxAlternatives =
+    1;
 
-    stopListening();
 
-  };
+
+  recognition.onstart =
+    function () {
+
+
+      listening =
+        true;
+
+
+      document
+        .getElementById(
+          "micButton"
+        )
+        .classList
+        .add(
+          "listening"
+        );
+
+
+      document
+        .getElementById(
+          "status"
+        )
+        .innerText =
+        "🎙️ กำลังฟังครับ...";
+
+    };
+
+
+
+  recognition.onresult =
+    function (event) {
+
+
+      const text =
+        event
+          .results[0][0]
+          .transcript;
+
+
+      document
+        .getElementById(
+          "question"
+        )
+        .value =
+        text;
+
+
+      stopListening();
+
+
+      askAI(text);
+
+    };
+
+
+
+  recognition.onerror =
+    function (event) {
+
+
+      console.log(
+        "Speech error:",
+        event.error
+      );
+
+
+      stopListening();
+
+
+      let message =
+        "รับเสียงไม่ได้ครับ";
+
+
+      if (
+        event.error ===
+        "not-allowed"
+      ) {
+
+        message =
+          "ไม่ได้รับอนุญาตให้ใช้ไมโครโฟนครับ";
+
+      }
+
+      else if (
+        event.error ===
+        "no-speech"
+      ) {
+
+        message =
+          "ไม่ได้ยินเสียงพูดครับ";
+
+      }
+
+      else if (
+        event.error ===
+        "network"
+      ) {
+
+        message =
+          "ระบบรับเสียงมีปัญหาเครือข่ายครับ";
+
+      }
+
+
+      document
+        .getElementById(
+          "status"
+        )
+        .innerText =
+        message;
+
+    };
+
+
+
+  recognition.onend =
+    function () {
+
+      stopListening();
+
+    };
+
 }
+
 
 
 function startListening() {
 
-  if (!recognition) return;
+
+  if (!recognition) {
+
+    return;
+
+  }
+
 
   if (listening) {
 
     recognition.stop();
 
     return;
+
   }
+
 
   try {
 
     recognition.start();
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.log(error);
 
   }
+
 }
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycby-QeUFRGI4Kn_xu8LFA_2TY2xlZfZPMbHSqSCTMkhphU2dabLsfeLgs8mfZBQiH6aO/exec";
+
+
 
 function stopListening() {
 
-  listening = false;
+
+  listening =
+    false;
+
 
   document
-    .getElementById("micButton")
-    .classList.remove("listening");
+    .getElementById(
+      "micButton"
+    )
+    .classList
+    .remove(
+      "listening"
+    );
 
 }
+
 
 
 document
-  .getElementById("micButton")
-  .addEventListener("click", startListening);
+  .getElementById(
+    "micButton"
+  )
+  .addEventListener(
+    "click",
+    startListening
+  );
 
+
+
+/* =====================================================
+   ส่งคำถามไป Apps Script
+   ใช้ JSONP
+   ===================================================== */
 
 function askAI(question) {
 
-  if (!question || !question.trim()) {
+
+  if (
+    !question ||
+    !question.trim()
+  ) {
+
     return;
+
   }
 
-  document.getElementById("status").innerText =
+
+  document
+    .getElementById(
+      "status"
+    )
+    .innerText =
     "🤖 กำลังวิเคราะห์...";
 
-  document.getElementById("answer").innerText =
+
+  document
+    .getElementById(
+      "answer"
+    )
+    .innerText =
     "กำลังอ่านข้อมูลจากสวน...";
 
 
-  // สร้างชื่อ callback แบบสุ่ม
+
   const callbackName =
-    "aiCallback_" + Date.now();
+    "aiCallback_" +
+    Date.now() +
+    "_" +
+    Math.floor(
+      Math.random() *
+      100000
+    );
 
 
-  // สร้างฟังก์ชัน callback บน window
-  window[callbackName] = function(result) {
 
-    // ล้าง script ที่ใช้เรียก API
-    if (script.parentNode) {
-      script.parentNode.removeChild(script);
-    }
-
-    delete window[callbackName];
+  let script =
+    document.createElement(
+      "script"
+    );
 
 
-    if (result.error) {
 
-      document.getElementById("status").innerText =
-        "❌ เกิดข้อผิดพลาด";
-
-      document.getElementById("answer").innerText =
-        result.error;
-
-      return;
-    }
+  let completed =
+    false;
 
 
-    document.getElementById("answer").innerText =
-      result.answer;
+
+  window[callbackName] =
+    function (result) {
 
 
-    document.getElementById("status").innerText =
-      "🔊 กำลังพูดตอบ...";
+      if (completed) {
+
+        return;
+
+      }
 
 
-    speak(result.answer);
+      completed =
+        true;
 
-  };
 
 
-  // สร้าง script tag
-  const script = document.createElement("script");
+      if (
+        script.parentNode
+      ) {
+
+        script
+          .parentNode
+          .removeChild(
+            script
+          );
+
+      }
+
+
+
+      delete window[
+        callbackName
+      ];
+
+
+
+      if (
+        result.error
+      ) {
+
+
+        document
+          .getElementById(
+            "status"
+          )
+          .innerText =
+          "❌ เกิดข้อผิดพลาด";
+
+
+        document
+          .getElementById(
+            "answer"
+          )
+          .innerText =
+          result.error;
+
+
+        return;
+
+      }
+
+
+
+      const answer =
+        result.answer ||
+        "AI ไม่ได้ส่งคำตอบกลับมาครับ";
+
+
+      document
+        .getElementById(
+          "answer"
+        )
+        .innerText =
+        answer;
+
+
+      document
+        .getElementById(
+          "status"
+        )
+        .innerText =
+        "🔊 กำลังพูดตอบ...";
+
+
+      speak(answer);
+
+    };
+
+
+
+  const url =
+    APPS_SCRIPT_URL +
+    "?question=" +
+    encodeURIComponent(
+      question
+    ) +
+    "&callback=" +
+    encodeURIComponent(
+      callbackName
+    );
+
 
 
   script.src =
-    APPS_SCRIPT_URL +
-    "?question=" +
-    encodeURIComponent(question) +
-    "&callback=" +
-    encodeURIComponent(callbackName);
+    url;
 
 
-  script.onerror = function() {
 
-    document.getElementById("status").innerText =
-      "❌ เชื่อมต่อ AI ไม่สำเร็จ";
-
-    document.getElementById("answer").innerText =
-      "ไม่สามารถเชื่อมต่อกับระบบ AI ได้ครับ";
-
-    delete window[callbackName];
-
-  };
+  script.onerror =
+    function () {
 
 
-  document.body.appendChild(script);
+      if (completed) {
+
+        return;
+
+      }
+
+
+      completed =
+        true;
+
+
+      delete window[
+        callbackName
+      ];
+
+
+
+      if (
+        script.parentNode
+      ) {
+
+        script
+          .parentNode
+          .removeChild(
+            script
+          );
+
+      }
+
+
+
+      document
+        .getElementById(
+          "status"
+        )
+        .innerText =
+        "❌ เชื่อมต่อ AI ไม่สำเร็จ";
+
+
+      document
+        .getElementById(
+          "answer"
+        )
+        .innerText =
+        "ไม่สามารถเชื่อมต่อระบบ AI ได้ครับ";
+
+    };
+
+
+
+  document
+    .body
+    .appendChild(
+      script
+    );
+
 }
 
 
+
+/* =====================================================
+   Text → Speech
+   ===================================================== */
+
 function speak(text) {
 
-  if (!("speechSynthesis" in window)) {
 
-    document.getElementById("status").innerText =
+  if (
+    !(
+      "speechSynthesis"
+      in window
+    )
+  ) {
+
+
+    document
+      .getElementById(
+        "status"
+      )
+      .innerText =
       "เบราว์เซอร์ไม่รองรับการอ่านเสียง";
+
 
     return;
 
   }
+
 
 
   speechSynthesis.cancel();
 
 
+
   const utterance =
-    new SpeechSynthesisUtterance(text);
+    new SpeechSynthesisUtterance(
+      text
+    );
 
 
-  utterance.lang = "th-TH";
 
-  utterance.rate = 0.95;
-
-  utterance.pitch = 1;
-
-  utterance.volume = 1;
+  utterance.lang =
+    "th-TH";
 
 
-  utterance.onend = function () {
-
-    document.getElementById("status").innerText =
-      "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
-
-  };
+  utterance.rate =
+    0.95;
 
 
-  speechSynthesis.speak(utterance);
+  utterance.pitch =
+    1;
+
+
+  utterance.volume =
+    1;
+
+
+
+  utterance.onstart =
+    function () {
+
+      document
+        .getElementById(
+          "status"
+        )
+        .innerText =
+        "🔊 กำลังพูดตอบ...";
+
+    };
+
+
+
+  utterance.onend =
+    function () {
+
+      document
+        .getElementById(
+          "status"
+        )
+        .innerText =
+        "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+
+    };
+
+
+
+  utterance.onerror =
+    function () {
+
+      document
+        .getElementById(
+          "status"
+        )
+        .innerText =
+        "ตอบข้อความแล้ว แต่ไม่สามารถเปิดเสียงได้";
+
+    };
+
+
+
+  speechSynthesis.speak(
+    utterance
+  );
 
 }
 
 
+
+/* =====================================================
+   Enter เพื่อส่งคำถาม
+   ===================================================== */
+
 document
-  .getElementById("question")
-  .addEventListener("keydown", function(event) {
+  .getElementById(
+    "question"
+  )
+  .addEventListener(
+    "keydown",
+    function (event) {
 
-    if (event.key === "Enter") {
 
-      askAI(this.value);
+      if (
+        event.key ===
+        "Enter"
+      ) {
+
+
+        askAI(
+          this.value
+        );
+
+
+      }
 
     }
+  );
 
-  });
+
 
 </script>
 
+
 </body>
+
 </html>
