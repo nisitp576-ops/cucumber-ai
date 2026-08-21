@@ -241,10 +241,11 @@ document
   .addEventListener("click", startListening);
 
 
-async function askAI(question) {
+function askAI(question) {
 
-  if (!question.trim()) return;
-
+  if (!question || !question.trim()) {
+    return;
+  }
 
   document.getElementById("status").innerText =
     "🤖 กำลังวิเคราะห์...";
@@ -253,38 +254,31 @@ async function askAI(question) {
     "กำลังอ่านข้อมูลจากสวน...";
 
 
-  try {
-
-    const response = await fetch(APPS_SCRIPT_URL, {
-
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        question: question
-      })
-
-    });
+  // สร้างชื่อ callback แบบสุ่ม
+  const callbackName =
+    "aiCallback_" + Date.now();
 
 
-    if (!response.ok) {
-      throw new Error(
-        "HTTP " + response.status
-      );
+  // สร้างฟังก์ชัน callback บน window
+  window[callbackName] = function(result) {
+
+    // ล้าง script ที่ใช้เรียก API
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
     }
 
-
-    const result =
-      await response.json();
+    delete window[callbackName];
 
 
-    if (!result.answer) {
-      throw new Error(
-        result.error || "ไม่ได้รับคำตอบจาก AI"
-      );
+    if (result.error) {
+
+      document.getElementById("status").innerText =
+        "❌ เกิดข้อผิดพลาด";
+
+      document.getElementById("answer").innerText =
+        result.error;
+
+      return;
     }
 
 
@@ -298,19 +292,35 @@ async function askAI(question) {
 
     speak(result.answer);
 
+  };
 
-  } catch (error) {
 
-    console.error(error);
+  // สร้าง script tag
+  const script = document.createElement("script");
+
+
+  script.src =
+    APPS_SCRIPT_URL +
+    "?question=" +
+    encodeURIComponent(question) +
+    "&callback=" +
+    encodeURIComponent(callbackName);
+
+
+  script.onerror = function() {
 
     document.getElementById("status").innerText =
-      "❌ เกิดข้อผิดพลาด";
+      "❌ เชื่อมต่อ AI ไม่สำเร็จ";
 
     document.getElementById("answer").innerText =
-      error.message;
+      "ไม่สามารถเชื่อมต่อกับระบบ AI ได้ครับ";
 
-  }
+    delete window[callbackName];
 
+  };
+
+
+  document.body.appendChild(script);
 }
 
 
