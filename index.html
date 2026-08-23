@@ -1,8 +1,8 @@
+```html
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -19,9 +19,7 @@
     }
 
     body {
-
       margin: 0;
-
       min-height: 100vh;
 
       background:
@@ -39,63 +37,51 @@
         sans-serif;
 
       display: flex;
-
       justify-content: center;
-
       align-items: center;
     }
 
     .app {
-
       width: 100%;
-
       max-width: 600px;
 
-      padding: 30px 20px 40px;
+      padding:
+        30px
+        20px
+        40px;
 
       text-align: center;
     }
 
     .robot {
-
       font-size: 70px;
-
       margin-bottom: 5px;
     }
 
     h1 {
-
       margin: 0;
-
       font-size: 30px;
-
       font-weight: 600;
     }
 
     #status {
-
       margin:
         18px
         0
         30px;
 
       color: #aaa;
-
       min-height: 25px;
     }
 
     #micButton {
-
       width: 180px;
-
       height: 180px;
 
       border-radius: 50%;
-
       border: none;
 
       background: #20252b;
-
       color: white;
 
       font-size: 70px;
@@ -115,15 +101,11 @@
     }
 
     #micButton:active {
-
-      transform:
-        scale(0.94);
+      transform: scale(0.94);
     }
 
     #micButton.listening {
-
-      background:
-        #b71c1c;
+      background: #b71c1c;
 
       box-shadow:
         0 0 60px
@@ -143,24 +125,20 @@
     @keyframes pulse {
 
       0% {
-        transform:
-          scale(1);
+        transform: scale(1);
       }
 
       50% {
-        transform:
-          scale(1.06);
+        transform: scale(1.06);
       }
 
       100% {
-        transform:
-          scale(1);
+        transform: scale(1);
       }
 
     }
 
     #question {
-
       width: 100%;
 
       margin-top: 30px;
@@ -173,8 +151,7 @@
         1px solid
         #333;
 
-      background:
-        #191c20;
+      background: #191c20;
 
       color: white;
 
@@ -184,12 +161,10 @@
     }
 
     #question::placeholder {
-
       color: #777;
     }
 
     #answer {
-
       margin-top: 25px;
 
       padding: 20px;
@@ -213,12 +188,9 @@
       min-height: 100px;
 
       white-space: pre-wrap;
-
-      overflow-wrap: anywhere;
     }
 
     .hint {
-
       margin-top: 20px;
 
       color: #666;
@@ -226,43 +198,10 @@
       font-size: 14px;
     }
 
-    #voiceTestButton {
-
-      margin-top: 18px;
-
-      padding:
-        10px
-        18px;
-
-      border-radius: 10px;
-
-      border:
-        1px solid
-        #444;
-
-      background:
-        #191c20;
-
-      color: #ddd;
-
-      cursor: pointer;
-
-      font-size: 14px;
-    }
-
-    #voiceTestButton:hover {
-
-      background:
-        #252a30;
-    }
-
     #debug {
-
-      margin-top: 20px;
+      margin-top: 25px;
 
       padding: 12px;
-
-      border-radius: 10px;
 
       background:
         rgba(
@@ -272,17 +211,29 @@
           0.35
         );
 
-      color: #777;
+      border:
+        1px solid
+        #222;
 
-      font-size: 12px;
+      border-radius: 10px;
 
       text-align: left;
 
-      white-space: pre-wrap;
+      font-size: 12px;
 
-      max-height: 180px;
+      line-height: 1.5;
+
+      color: #888;
+
+      max-height: 220px;
 
       overflow-y: auto;
+
+      white-space: pre-wrap;
+    }
+
+    #audioPlayer {
+      display: none;
     }
 
   </style>
@@ -295,34 +246,24 @@
 
 <div class="app">
 
-
   <div class="robot">
     🤖
   </div>
-
 
   <h1>
     Cucumber AI
   </h1>
 
-
   <div id="status">
-
-    พร้อมครับ
-    กดไมค์แล้วพูดได้เลย
-
+    พร้อมครับ กดไมค์แล้วพูดได้เลย
   </div>
-
 
   <button
     id="micButton"
     type="button"
   >
-
     🎙️
-
   </button>
-
 
   <input
     id="question"
@@ -331,95 +272,85 @@
     autocomplete="off"
   >
 
-
   <div id="answer">
-
     รอคำถามจากคุณ...
-
   </div>
-
-
-  <button
-    id="voiceTestButton"
-    type="button"
-  >
-
-    🔊 ทดสอบ VOICEVOX
-
-  </button>
-
 
   <div class="hint">
-
-    กดไมค์ →
-    พูด →
-    AI วิเคราะห์ →
-    AI พูดตอบ
-
+    กดไมค์ → พูด → AI วิเคราะห์ → AI พูดตอบ
   </div>
 
+  <div id="debug">
+    Cucumber AI พร้อมทำงาน
+  </div>
 
-  <div id="debug"></div>
-
+  <audio
+    id="audioPlayer"
+    preload="auto"
+  ></audio>
 
 </div>
-
 
 
 <script>
 
 
 /* =====================================================
-   Google Apps Script
+   CONFIG
    ===================================================== */
 
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxuuetkVQLCHCr0IF2RF_1o11jXsW9jaORL6UvoLV1g_d2x35k8wZoeIpai-nFpiHbv/exec";
 
 
+const VOICEVOX_URL =
+  "http://127.0.0.1:50021";
 
-/* =====================================================
-   VOICEVOX
-   ===================================================== */
-
-const VOICEVOX_URLS = [
-
-  "http://127.0.0.1:50021",
-
-  "http://localhost:50021"
-
-];
 
 const SPEAKER_ID = 7;
 
 
-
 /* =====================================================
-   Audio Engine
-
-   สำคัญมาก:
-   ปลดล็อก AudioContext ตั้งแต่ผู้ใช้กดปุ่ม
-   เพื่อหลีกเลี่ยง Browser Autoplay Block
+   ELEMENTS
    ===================================================== */
 
-let audioContext = null;
-
-let currentAudioSource = null;
-
+const statusElement =
+  document.getElementById("status");
 
 
-function logDebug(message, data) {
+const answerElement =
+  document.getElementById("answer");
 
-  const debug =
-    document.getElementById(
-      "debug"
-    );
+
+const questionElement =
+  document.getElementById("question");
+
+
+const micButton =
+  document.getElementById("micButton");
+
+
+const debugElement =
+  document.getElementById("debug");
+
+
+const audioPlayer =
+  document.getElementById("audioPlayer");
+
+
+/* =====================================================
+   DEBUG
+   ===================================================== */
+
+function log(message, data) {
 
   const time =
-    new Date()
-      .toLocaleTimeString(
-        "th-TH"
-      );
+    new Date().toLocaleTimeString(
+      "th-TH",
+      {
+        hour12: false
+      }
+    );
 
   let line =
     "[" +
@@ -442,7 +373,6 @@ function logDebug(message, data) {
         );
 
     }
-
     catch {
 
       line +=
@@ -454,84 +384,158 @@ function logDebug(message, data) {
   }
 
   console.log(
-    "[CUCUMBER_AI]",
     message,
     data
   );
 
-  if (debug) {
+  debugElement.textContent +=
+    "\n" +
+    line;
 
-    debug.textContent +=
-      line +
-      "\n";
-
-    debug.scrollTop =
-      debug.scrollHeight;
-
-  }
-
+  debugElement.scrollTop =
+    debugElement.scrollHeight;
 }
 
 
+/* =====================================================
+   AUDIO SYSTEM
+   ===================================================== */
+
+let audioContext = null;
+
+let audioUnlocked = false;
+
+
+let currentSource = null;
+
+let currentGain = null;
+
+
+/* -----------------------------------------------------
+   สร้าง AudioContext
+   ----------------------------------------------------- */
+
+function createAudioContext() {
+
+  if (audioContext) {
+
+    return audioContext;
+
+  }
+
+  const AudioContextClass =
+    window.AudioContext ||
+    window.webkitAudioContext;
+
+
+  if (!AudioContextClass) {
+
+    log(
+      "เบราว์เซอร์ไม่รองรับ Web Audio API"
+    );
+
+    return null;
+
+  }
+
+
+  audioContext =
+    new AudioContextClass();
+
+
+  log(
+    "สร้าง AudioContext",
+    {
+      state:
+        audioContext.state,
+      sampleRate:
+        audioContext.sampleRate
+    }
+  );
+
+
+  return audioContext;
+}
+
+
+/* -----------------------------------------------------
+   ปลดล็อกเสียงจาก user gesture
+   ----------------------------------------------------- */
 
 async function unlockAudio() {
 
+  const ctx =
+    createAudioContext();
+
+
+  if (!ctx) {
+
+    return false;
+
+  }
+
+
   try {
 
-    if (!audioContext) {
-
-      const AudioContextClass =
-        window.AudioContext ||
-        window.webkitAudioContext;
-
-      if (!AudioContextClass) {
-
-        throw new Error(
-          "เบราว์เซอร์ไม่รองรับ AudioContext"
-        );
-
-      }
-
-      audioContext =
-        new AudioContextClass();
-
-      logDebug(
-        "สร้าง AudioContext",
-        {
-          state:
-            audioContext.state
-        }
-      );
-
-    }
-
-
     if (
-      audioContext.state ===
+      ctx.state ===
       "suspended"
     ) {
 
-      await audioContext.resume();
-
-      logDebug(
-        "AudioContext resume แล้ว",
-        {
-          state:
-            audioContext.state
-        }
-      );
+      await ctx.resume();
 
     }
+
+
+    /*
+      สร้าง buffer เงียบสั้น ๆ
+      เพื่อปลด autoplay policy
+    */
+
+    const buffer =
+      ctx.createBuffer(
+        1,
+        1,
+        ctx.sampleRate
+      );
+
+
+    const source =
+      ctx.createBufferSource();
+
+
+    source.buffer =
+      buffer;
+
+
+    source.connect(
+      ctx.destination
+    );
+
+
+    source.start(0);
+
+
+    audioUnlocked =
+      true;
+
+
+    log(
+      "AudioContext พร้อมใช้งาน",
+      {
+        state:
+          ctx.state
+      }
+    );
 
 
     return true;
 
   }
-
   catch (error) {
 
-    logDebug(
-      "ปลดล็อก AudioContext ไม่สำเร็จ",
+    log(
+      "ปลดล็อกเสียงไม่สำเร็จ",
       error.message
     );
 
@@ -542,87 +546,43 @@ async function unlockAudio() {
 }
 
 
-
 /* =====================================================
-   หยุดเสียงเดิม
+   UNLOCK AUDIO เมื่อผู้ใช้กดปุ่ม
    ===================================================== */
 
-function stopCurrentAudio() {
+document.addEventListener(
+  "click",
+  function () {
 
-  if (
-    currentAudioSource
-  ) {
+    unlockAudio();
 
-    try {
-
-      currentAudioSource.stop();
-
-    }
-
-    catch {
-
-    }
-
-    currentAudioSource =
-      null;
-
+  },
+  {
+    once: false
   }
+);
 
-}
 
+document.addEventListener(
+  "keydown",
+  function () {
+
+    unlockAudio();
+
+  },
+  {
+    once: false
+  }
+);
 
 
 /* =====================================================
-   ล้าง Markdown Code Fence
-
-   ป้องกัน ```html / ```htm / ``` โผล่หน้าเว็บ
-   ===================================================== */
-
-function cleanAIText(text) {
-
-  if (!text) {
-
-    return "";
-
-  }
-
-  let clean =
-    String(text);
-
-
-  clean =
-    clean.replace(
-      /```(?:html?|javascript|js|css|json|text)?/gi,
-      ""
-    );
-
-
-  clean =
-    clean.replace(
-      /```/g,
-      ""
-    );
-
-
-  clean =
-    clean.replace(
-      /^\s*html\s*/i,
-      ""
-    );
-
-
-  return clean.trim();
-
-}
-
-
-
-/* =====================================================
-   Speech Recognition
+   SPEECH RECOGNITION
    ===================================================== */
 
 let recognition =
   null;
+
 
 let listening =
   false;
@@ -633,16 +593,17 @@ const SpeechRecognition =
   window.webkitSpeechRecognition;
 
 
-
 if (!SpeechRecognition) {
 
-  document.getElementById(
-    "status"
-  ).innerText =
+  statusElement.innerText =
     "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
 
-}
 
+  log(
+    "ไม่พบ SpeechRecognition"
+  );
+
+}
 else {
 
   recognition =
@@ -665,36 +626,29 @@ else {
     1;
 
 
-
   recognition.onstart =
-    async function () {
+    function () {
 
       listening =
         true;
 
 
-      await unlockAudio();
-
-
-      document
-        .getElementById(
-          "micButton"
-        )
+      micButton
         .classList
         .add(
           "listening"
         );
 
 
-      document
-        .getElementById(
-          "status"
-        )
-        .innerText =
+      statusElement.innerText =
         "🎙️ กำลังฟังครับ...";
 
-    };
 
+      log(
+        "เริ่มรับเสียง"
+      );
+
+    };
 
 
   recognition.onresult =
@@ -703,14 +657,17 @@ else {
       const text =
         event
           .results[0][0]
-          .transcript;
+          .transcript
+          .trim();
 
 
-      document
-        .getElementById(
-          "question"
-        )
-        .value =
+      log(
+        "รับเสียงได้",
+        text
+      );
+
+
+      questionElement.value =
         text;
 
 
@@ -722,12 +679,11 @@ else {
     };
 
 
-
   recognition.onerror =
     function (event) {
 
-      logDebug(
-        "Speech Recognition Error",
+      log(
+        "Speech error",
         event.error
       );
 
@@ -748,7 +704,6 @@ else {
           "ไม่ได้รับอนุญาตให้ใช้ไมโครโฟนครับ";
 
       }
-
       else if (
         event.error ===
         "no-speech"
@@ -758,7 +713,6 @@ else {
           "ไม่ได้ยินเสียงพูดครับ";
 
       }
-
       else if (
         event.error ===
         "network"
@@ -770,15 +724,10 @@ else {
       }
 
 
-      document
-        .getElementById(
-          "status"
-        )
-        .innerText =
+      statusElement.innerText =
         message;
 
     };
-
 
 
   recognition.onend =
@@ -786,27 +735,29 @@ else {
 
       stopListening();
 
+      log(
+        "สิ้นสุดการรับเสียง"
+      );
+
     };
 
 }
 
 
+/* =====================================================
+   START LISTENING
+   ===================================================== */
 
 async function startListening() {
+
+  await unlockAudio();
+
 
   if (!recognition) {
 
     return;
 
   }
-
-
-  /*
-   * ต้องทำตอน user click โดยตรง
-   * เพื่อปลดล็อกเสียงก่อน AI ทำงาน
-   */
-
-  await unlockAudio();
 
 
   if (listening) {
@@ -823,11 +774,10 @@ async function startListening() {
     recognition.start();
 
   }
-
   catch (error) {
 
-    logDebug(
-      "เริ่มไมค์ไม่สำเร็จ",
+    log(
+      "เริ่มไมค์ไม่ได้",
       error.message
     );
 
@@ -836,6 +786,9 @@ async function startListening() {
 }
 
 
+/* =====================================================
+   STOP LISTENING
+   ===================================================== */
 
 function stopListening() {
 
@@ -843,10 +796,7 @@ function stopListening() {
     false;
 
 
-  document
-    .getElementById(
-      "micButton"
-    )
+  micButton
     .classList
     .remove(
       "listening"
@@ -855,21 +805,14 @@ function stopListening() {
 }
 
 
-
-document
-  .getElementById(
-    "micButton"
-  )
-  .addEventListener(
-    "click",
-    startListening
-  );
-
+micButton.addEventListener(
+  "click",
+  startListening
+);
 
 
 /* =====================================================
-   ส่งคำถามไป Apps Script
-   JSONP
+   ASK AI
    ===================================================== */
 
 function askAI(question) {
@@ -884,24 +827,21 @@ function askAI(question) {
   }
 
 
-  const cleanQuestion =
-    question.trim();
+  unlockAudio();
 
 
-  document
-    .getElementById(
-      "status"
-    )
-    .innerText =
+  statusElement.innerText =
     "🤖 กำลังวิเคราะห์...";
 
 
-  document
-    .getElementById(
-      "answer"
-    )
-    .innerText =
+  answerElement.innerText =
     "กำลังอ่านข้อมูลจากสวน...";
+
+
+  log(
+    "ส่งคำถาม AI",
+    question
+  );
 
 
   const callbackName =
@@ -924,7 +864,6 @@ function askAI(question) {
     false;
 
 
-
   window[callbackName] =
     function (result) {
 
@@ -943,8 +882,7 @@ function askAI(question) {
         script.parentNode
       ) {
 
-        script
-          .parentNode
+        script.parentNode
           .removeChild(
             script
           );
@@ -958,27 +896,33 @@ function askAI(question) {
 
 
       if (
-        !result ||
+        !result
+      ) {
+
+        statusElement.innerText =
+          "❌ AI ไม่ส่งข้อมูลกลับมา";
+
+        return;
+
+      }
+
+
+      if (
         result.error
       ) {
 
-        document
-          .getElementById(
-            "status"
-          )
-          .innerText =
+        statusElement.innerText =
           "❌ เกิดข้อผิดพลาด";
 
 
-        document
-          .getElementById(
-            "answer"
-          )
-          .innerText =
-          result &&
+        answerElement.innerText =
+          result.error;
+
+
+        log(
+          "AI ERROR",
           result.error
-            ? result.error
-            : "AI ไม่ได้ส่งข้อมูลกลับมา";
+        );
 
 
         return;
@@ -987,46 +931,37 @@ function askAI(question) {
 
 
       const answer =
-        cleanAIText(
-          result.answer ||
-          ""
-        );
-
-
-      document
-        .getElementById(
-          "answer"
-        )
-        .innerText =
-        answer ||
+        result.answer ||
         "AI ไม่ได้ส่งคำตอบกลับมาครับ";
 
 
-      document
-        .getElementById(
-          "status"
-        )
-        .innerText =
-        "🔊 กำลังเตรียมเสียง...";
+      answerElement.innerText =
+        answer;
 
 
-      /*
-       * AudioContext ถูก unlock ตั้งแต่กดไมค์แล้ว
-       */
+      statusElement.innerText =
+        "🔊 กำลังเตรียมเสียงตอบ...";
 
-      speak(
-        answer
+
+      log(
+        "AI ตอบกลับแล้ว",
+        {
+          length:
+            answer.length
+        }
       );
 
-    };
 
+      speak(answer);
+
+    };
 
 
   const url =
     APPS_SCRIPT_URL +
     "?question=" +
     encodeURIComponent(
-      cleanQuestion
+      question
     ) +
     "&callback=" +
     encodeURIComponent(
@@ -1061,8 +996,7 @@ function askAI(question) {
         script.parentNode
       ) {
 
-        script
-          .parentNode
+        script.parentNode
           .removeChild(
             script
           );
@@ -1070,234 +1004,30 @@ function askAI(question) {
       }
 
 
-      document
-        .getElementById(
-          "status"
-        )
-        .innerText =
+      statusElement.innerText =
         "❌ เชื่อมต่อ AI ไม่สำเร็จ";
 
 
-      document
-        .getElementById(
-          "answer"
-        )
-        .innerText =
+      answerElement.innerText =
         "ไม่สามารถเชื่อมต่อระบบ AI ได้ครับ";
+
+
+      log(
+        "Apps Script เชื่อมต่อไม่ได้"
+      );
 
     };
 
 
-  document
-    .body
-    .appendChild(
-      script
-    );
-
-}
-
-
-
-/* =====================================================
-   ตรวจ VOICEVOX
-   ===================================================== */
-
-async function getWorkingVoicevoxURL() {
-
-  logDebug(
-    "เริ่มตรวจสอบ VOICEVOX"
-  );
-
-
-  for (
-    const baseURL
-    of VOICEVOX_URLS
-  ) {
-
-    try {
-
-      logDebug(
-        "กำลังตรวจ",
-        baseURL
-      );
-
-
-      const response =
-        await fetch(
-          baseURL +
-          "/version",
-          {
-            method:
-              "GET",
-
-            cache:
-              "no-store"
-          }
-        );
-
-
-      logDebug(
-        "VOICEVOX /version ตอบกลับ",
-        {
-          url:
-            baseURL,
-
-          status:
-            response.status,
-
-          ok:
-            response.ok
-        }
-      );
-
-
-      if (
-        response.ok
-      ) {
-
-        const version =
-          await response.text();
-
-
-        logDebug(
-          "VOICEVOX version",
-          version
-        );
-
-
-        return baseURL;
-
-      }
-
-    }
-
-    catch (error) {
-
-      logDebug(
-        "เชื่อมต่อไม่ได้",
-        {
-          url:
-            baseURL,
-
-          error:
-            error.message
-        }
-      );
-
-    }
-
-  }
-
-
-  throw new Error(
-    "เบราว์เซอร์ไม่สามารถเชื่อมต่อ VOICEVOX ได้"
+  document.body.appendChild(
+    script
   );
 
 }
 
 
-
 /* =====================================================
-   ตรวจ Speaker
-   ===================================================== */
-
-async function checkSpeaker(
-  baseURL
-) {
-
-  logDebug(
-    "กำลังตรวจ Speaker ID",
-    SPEAKER_ID
-  );
-
-
-  const response =
-    await fetch(
-      baseURL +
-      "/speakers",
-      {
-        method:
-          "GET",
-
-        cache:
-          "no-store"
-      }
-    );
-
-
-  if (
-    !response.ok
-  ) {
-
-    throw new Error(
-      "VOICEVOX /speakers HTTP " +
-      response.status
-    );
-
-  }
-
-
-  const speakers =
-    await response.json();
-
-
-  for (
-    const speaker
-    of speakers
-  ) {
-
-    for (
-      const style
-      of speaker.styles
-    ) {
-
-      if (
-        Number(
-          style.id
-        ) ===
-        Number(
-          SPEAKER_ID
-        )
-      ) {
-
-        logDebug(
-          "พบ Speaker",
-          {
-            name:
-              speaker.name,
-
-            style:
-              style.name,
-
-            id:
-              style.id
-          }
-        );
-
-
-        return;
-
-      }
-
-    }
-
-  }
-
-
-  throw new Error(
-    "ไม่พบ Speaker ID " +
-    SPEAKER_ID
-  );
-
-}
-
-
-
-/* =====================================================
-   Text → VOICEVOX
-
-   ใช้ AudioContext โดยตรง
-   ไม่ใช้ new Audio().play()
+   VOICEVOX
    ===================================================== */
 
 async function speak(text) {
@@ -1307,111 +1037,258 @@ async function speak(text) {
     !text.trim()
   ) {
 
-    return;
-
-  }
-
-
-  const cleanText =
-    cleanAIText(
-      text
+    log(
+      "ไม่มีข้อความให้พูด"
     );
-
-
-  if (!cleanText) {
 
     return;
 
   }
 
 
-  const status =
-    document.getElementById(
-      "status"
-    );
+  statusElement.innerText =
+    "🎙️ กำลังเชื่อมต่อ VOICEVOX...";
+
+
+  log(
+    "เริ่ม VOICEVOX",
+    {
+      url:
+        VOICEVOX_URL,
+      speaker:
+        SPEAKER_ID,
+      textLength:
+        text.length
+    }
+  );
+
+
+  /*
+    สำคัญ:
+    AudioContext ต้องถูก resume
+    ก่อนเล่นเสียง
+  */
+
+  const ctx =
+    createAudioContext();
+
+
+  if (!ctx) {
+
+    return;
+
+  }
 
 
   try {
 
-    /*
-     * ตรวจและปลดล็อก AudioContext
-     */
+    if (
+      ctx.state !==
+      "running"
+    ) {
 
-    const audioReady =
-      await unlockAudio();
+      log(
+        "AudioContext ยังไม่ running",
+        ctx.state
+      );
 
 
-    if (!audioReady) {
+      await ctx.resume();
 
-      throw new Error(
-        "ไม่สามารถเปิด AudioContext ได้"
+
+      log(
+        "AudioContext หลัง resume",
+        ctx.state
       );
 
     }
 
 
-    stopCurrentAudio();
+    /* =================================================
+       1. ตรวจ VOICEVOX
+       ================================================= */
 
-
-    status.innerText =
-      "🎙️ กำลังเชื่อมต่อ VOICEVOX...";
-
-
-    /*
-     * 1. หา VOICEVOX ที่ใช้งานได้
-     */
-
-    const baseURL =
-      await getWorkingVoicevoxURL();
-
-
-    /*
-     * 2. ตรวจ Speaker
-     */
-
-    await checkSpeaker(
-      baseURL
+    log(
+      "กำลังตรวจ VOICEVOX"
     );
 
 
-    /*
-     * 3. audio_query
-     */
-
-    status.innerText =
-      "🎙️ กำลังสร้าง audio_query...";
-
-
-    logDebug(
-      "กำลังสร้าง audio_query"
-    );
-
-
-    const queryResponse =
+    const versionResponse =
       await fetch(
-        baseURL +
-        "/audio_query?speaker=" +
-        SPEAKER_ID +
-        "&text=" +
-        encodeURIComponent(
-          cleanText
-        ),
+        VOICEVOX_URL +
+        "/version",
         {
           method:
-            "POST",
-
+            "GET",
           cache:
             "no-store"
         }
       );
 
 
-    logDebug(
+    if (
+      !versionResponse.ok
+    ) {
+
+      throw new Error(
+        "VOICEVOX /version HTTP " +
+        versionResponse.status
+      );
+
+    }
+
+
+    const version =
+      await versionResponse.text();
+
+
+    log(
+      "VOICEVOX version",
+      version
+    );
+
+
+    /* =================================================
+       2. ตรวจ SPEAKER
+       ================================================= */
+
+    log(
+      "กำลังตรวจ Speaker ID",
+      SPEAKER_ID
+    );
+
+
+    const speakersResponse =
+      await fetch(
+        VOICEVOX_URL +
+        "/speakers",
+        {
+          method:
+            "GET",
+          cache:
+            "no-store"
+        }
+      );
+
+
+    if (
+      !speakersResponse.ok
+    ) {
+
+      throw new Error(
+        "VOICEVOX /speakers HTTP " +
+        speakersResponse.status
+      );
+
+    }
+
+
+    const speakers =
+      await speakersResponse.json();
+
+
+    let foundSpeaker =
+      null;
+
+
+    for (
+      const speaker
+      of speakers
+    ) {
+
+      for (
+        const style
+        of speaker.styles
+      ) {
+
+        if (
+          style.id ===
+          SPEAKER_ID
+        ) {
+
+          foundSpeaker = {
+
+            name:
+              speaker.name,
+
+            style:
+              style.name,
+
+            id:
+              style.id
+
+          };
+
+          break;
+
+        }
+
+      }
+
+
+      if (foundSpeaker) {
+
+        break;
+
+      }
+
+    }
+
+
+    if (!foundSpeaker) {
+
+      throw new Error(
+        "ไม่พบ Speaker ID " +
+        SPEAKER_ID
+      );
+
+    }
+
+
+    log(
+      "พบ Speaker",
+      foundSpeaker
+    );
+
+
+    /* =================================================
+       3. AUDIO QUERY
+       ================================================= */
+
+    statusElement.innerText =
+      "🎙️ กำลังสร้างเสียง...";
+
+
+    log(
+      "กำลังสร้าง audio_query"
+    );
+
+
+    const queryResponse =
+      await fetch(
+        VOICEVOX_URL +
+        "/audio_query?speaker=" +
+        SPEAKER_ID +
+        "&text=" +
+        encodeURIComponent(
+          text
+        ),
+        {
+          method:
+            "POST",
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded"
+          }
+        }
+      );
+
+
+    log(
       "audio_query response",
       {
         status:
           queryResponse.status,
-
         ok:
           queryResponse.ok
       }
@@ -1427,7 +1304,7 @@ async function speak(text) {
 
 
       throw new Error(
-        "VOICEVOX audio_query HTTP " +
+        "audio_query HTTP " +
         queryResponse.status +
         ": " +
         errorText
@@ -1440,39 +1317,38 @@ async function speak(text) {
       await queryResponse.json();
 
 
-    /*
-     * 4. ปรับเสียง
-     */
+    /* =================================================
+       4. ปรับเสียง
+       ================================================= */
 
     query.speedScale =
       1.0;
 
+
     query.pitchScale =
       0.02;
 
+
     query.intonationScale =
       1.08;
+
 
     query.volumeScale =
       1.0;
 
 
-    /*
-     * 5. synthesis
-     */
+    /* =================================================
+       5. SYNTHESIS
+       ================================================= */
 
-    status.innerText =
-      "🎙️ กำลังสร้างไฟล์เสียง WAV...";
-
-
-    logDebug(
+    log(
       "กำลังสร้างไฟล์เสียง WAV"
     );
 
 
     const synthesisResponse =
       await fetch(
-        baseURL +
+        VOICEVOX_URL +
         "/synthesis?speaker=" +
         SPEAKER_ID,
         {
@@ -1495,12 +1371,11 @@ async function speak(text) {
       );
 
 
-    logDebug(
+    log(
       "synthesis response",
       {
         status:
           synthesisResponse.status,
-
         ok:
           synthesisResponse.ok
       }
@@ -1516,7 +1391,7 @@ async function speak(text) {
 
 
       throw new Error(
-        "VOICEVOX synthesis HTTP " +
+        "synthesis HTTP " +
         synthesisResponse.status +
         ": " +
         errorText
@@ -1525,20 +1400,19 @@ async function speak(text) {
     }
 
 
-    /*
-     * 6. รับ WAV
-     */
+    /* =================================================
+       6. รับ WAV
+       ================================================= */
 
     const audioBlob =
       await synthesisResponse.blob();
 
 
-    logDebug(
+    log(
       "ได้รับไฟล์เสียง",
       {
         size:
           audioBlob.size,
-
         type:
           audioBlob.type
       }
@@ -1551,152 +1425,277 @@ async function speak(text) {
     ) {
 
       throw new Error(
-        "VOICEVOX ส่งไฟล์เสียงว่างกลับมา"
+        "VOICEVOX ส่งไฟล์เสียงว่าง"
       );
 
     }
 
 
-    /*
-     * 7. แปลง WAV → ArrayBuffer
-     */
+    /* =================================================
+       7. DECODE WAV
+       ================================================= */
 
-    status.innerText =
+    statusElement.innerText =
       "🔊 กำลังเตรียมเสียง...";
+
+
+    log(
+      "กำลัง decode WAV"
+    );
 
 
     const arrayBuffer =
       await audioBlob.arrayBuffer();
 
 
-    /*
-     * 8. Decode WAV ด้วย AudioContext
-     */
-
-    logDebug(
-      "กำลัง decode WAV"
-    );
-
-
-    if (
-      audioContext.state ===
-      "suspended"
-    ) {
-
-      await audioContext.resume();
-
-    }
-
-
     const audioBuffer =
-      await audioContext.decodeAudioData(
-        arrayBuffer
+      await ctx.decodeAudioData(
+        arrayBuffer.slice(0)
       );
 
 
-    logDebug(
+    log(
       "Decode WAV สำเร็จ",
       {
         duration:
           audioBuffer.duration,
-
         sampleRate:
           audioBuffer.sampleRate,
-
         channels:
-          audioBuffer.numberOfChannels
+          audioBuffer.numberOfChannels,
+        length:
+          audioBuffer.length
       }
     );
 
 
+    /* =================================================
+       8. ตรวจว่ามีเสียงจริงหรือไม่
+       ================================================= */
+
+    let maxPeak =
+      0;
+
+    let sumSquares =
+      0;
+
+    let sampleCount =
+      0;
+
+
+    for (
+      let channel = 0;
+      channel <
+      audioBuffer.numberOfChannels;
+      channel++
+    ) {
+
+      const data =
+        audioBuffer.getChannelData(
+          channel
+        );
+
+
+      /*
+        อ่านทุก ๆ 100 sample
+        เพื่อลดภาระ CPU
+      */
+
+      for (
+        let i = 0;
+        i < data.length;
+        i += 100
+      ) {
+
+        const value =
+          data[i];
+
+
+        const abs =
+          Math.abs(value);
+
+
+        if (
+          abs >
+          maxPeak
+        ) {
+
+          maxPeak =
+            abs;
+
+        }
+
+
+        sumSquares +=
+          value * value;
+
+
+        sampleCount++;
+
+      }
+
+    }
+
+
+    const rms =
+      sampleCount > 0
+        ? Math.sqrt(
+            sumSquares /
+            sampleCount
+          )
+        : 0;
+
+
+    log(
+      "ตรวจระดับเสียง",
+      {
+        peak:
+          maxPeak,
+        rms:
+          rms,
+        duration:
+          audioBuffer.duration
+      }
+    );
+
+
+    if (
+      maxPeak <
+      0.0001
+    ) {
+
+      throw new Error(
+        "WAV ไม่มีสัญญาณเสียง หรือเสียงเบามากผิดปกติ"
+      );
+
+    }
+
+
+    /* =================================================
+       9. หยุดเสียงเดิม
+       ================================================= */
+
+    if (currentSource) {
+
+      try {
+
+        currentSource.stop();
+
+      }
+      catch {}
+
+      currentSource =
+        null;
+
+    }
+
+
+    /* =================================================
+       10. สร้าง Gain
+       ================================================= */
+
+    currentGain =
+      ctx.createGain();
+
+
     /*
-     * 9. สร้าง Source
-     */
+      เพิ่มความดังเล็กน้อย
+      ไม่ควรสูงเกินไปจนแตก
+    */
 
-    const source =
-      audioContext.createBufferSource();
+    currentGain.gain.value =
+      1.8;
 
 
-    source.buffer =
+    currentGain.connect(
+      ctx.destination
+    );
+
+
+    /* =================================================
+       11. PLAY ผ่าน Web Audio
+       ================================================= */
+
+    currentSource =
+      ctx.createBufferSource();
+
+
+    currentSource.buffer =
       audioBuffer;
 
 
-    /*
-     * 10. เพิ่ม Gain
-     */
-
-    const gainNode =
-      audioContext.createGain();
-
-
-    gainNode.gain.value =
-      1.0;
-
-
-    source.connect(
-      gainNode
+    currentSource.connect(
+      currentGain
     );
 
 
-    gainNode.connect(
-      audioContext.destination
-    );
-
-
-    currentAudioSource =
-      source;
-
-
-    /*
-     * 11. เริ่มเล่น
-     */
-
-    status.innerText =
-      "🔊 ずんだもん กำลังพูด...";
-
-
-    logDebug(
-      "เริ่มเล่นเสียง"
-    );
-
-
-    source.onended =
+    currentSource.onended =
       function () {
 
+        log(
+          "เล่นเสียงเสร็จแล้ว"
+        );
+
+
+        currentSource =
+          null;
+
+
         if (
-          currentAudioSource ===
-          source
+          currentGain
         ) {
 
-          currentAudioSource =
+          try {
+
+            currentGain.disconnect();
+
+          }
+          catch {}
+
+          currentGain =
             null;
 
         }
 
 
-        status.innerText =
+        statusElement.innerText =
           "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
-
-
-        logDebug(
-          "เล่นเสียงเสร็จแล้ว"
-        );
 
       };
 
 
-    source.start(
-      0
+    statusElement.innerText =
+      "🔊 ずんだもん กำลังพูด...";
+
+
+    log(
+      "เริ่มเล่นเสียง",
+      {
+        audioContext:
+          ctx.state,
+        duration:
+          audioBuffer.duration,
+        gain:
+          currentGain.gain.value
+      }
     );
 
 
-    logDebug(
+    currentSource.start(0);
+
+
+    log(
       "VOICEVOX เล่นเสียงสำเร็จ"
     );
 
 
-  }
+    /*
+      สำรองด้วย HTML Audio
+      แต่จะไม่เล่นซ้อนทันที
+      ใช้เฉพาะกรณี Web Audio ล้มเหลว
+    */
 
+  }
   catch (error) {
 
     console.error(
@@ -1712,113 +1711,114 @@ async function speak(text) {
         : String(error);
 
 
-    logDebug(
+    log(
       "VOICEVOX ERROR",
       message
     );
 
 
-    status.innerText =
-      "❌ VOICEVOX ERROR: " +
+    statusElement.innerText =
+      "❌ " +
       message;
 
 
-    const answer =
-      document.getElementById(
-        "answer"
-      );
-
-
-    if (answer) {
-
-      /*
-       * ไม่เอา Error ไปต่อท้ายคำตอบ
-       * เพื่อไม่ให้ AI อ่าน Error ออกเสียง
-       */
-
-      answer.innerText =
-        cleanText;
-
-    }
+    answerElement.innerText =
+      answerElement.innerText +
+      "\n\n[VOICEVOX ERROR]\n" +
+      message;
 
   }
 
 }
 
 
-
 /* =====================================================
-   ปุ่มทดสอบ VOICEVOX
+   FALLBACK HTML AUDIO
    ===================================================== */
 
-document
-  .getElementById(
-    "voiceTestButton"
-  )
-  .addEventListener(
-    "click",
-    async function () {
+async function fallbackHTMLAudio(
+  audioBlob
+) {
 
-      /*
-       * สำคัญ:
-       * การคลิกปุ่มนี้เป็น User Gesture
-       * จึง unlock AudioContext ได้แน่นอนกว่า
-       */
-
-      await unlockAudio();
-
-
-      const testText =
-        "สวัสดีครับ วันนี้เรามาตรวจสอบแตงกวาญี่ปุ่นกันครับ";
-
-
-      document
-        .getElementById(
-          "answer"
-        )
-        .innerText =
-        testText;
-
-
-      await speak(
-        testText
-      );
-
-    }
+  log(
+    "เริ่ม Fallback HTML Audio"
   );
 
 
+  return new Promise(
+    async function (
+      resolve,
+      reject
+    ) {
 
-/* =====================================================
-   Enter เพื่อส่งคำถาม
-   ===================================================== */
+      try {
 
-document
-  .getElementById(
-    "question"
-  )
-  .addEventListener(
-    "keydown",
-    async function (event) {
-
-      if (
-        event.key ===
-        "Enter"
-      ) {
-
-        event.preventDefault();
+        const url =
+          URL.createObjectURL(
+            audioBlob
+          );
 
 
-        /*
-         * Enter ถือเป็น User Gesture
-         * ปลดล็อกเสียงก่อนเรียก AI
-         */
-
-        await unlockAudio();
+        audioPlayer.src =
+          url;
 
 
-        askAI(
-          this.value
+        audioPlayer.volume =
+          1.0;
+
+
+        audioPlayer.onended =
+          function () {
+
+            log(
+              "Fallback เล่นเสร็จแล้ว"
+            );
+
+
+            URL.revokeObjectURL(
+              url
+            );
+
+
+            resolve();
+
+          };
+
+
+        audioPlayer.onerror =
+          function () {
+
+            log(
+              "Fallback HTML Audio เล่นไม่ได้"
+            );
+
+
+            URL.revokeObjectURL(
+              url
+            );
+
+
+            reject(
+              new Error(
+                "HTML Audio playback failed"
+              )
+            );
+
+          };
+
+
+        await audioPlayer.play();
+
+
+        log(
+          "Fallback HTML Audio เริ่มเล่น"
+        );
+
+      }
+      catch (error) {
+
+        reject(
+          error
         );
 
       }
@@ -1826,20 +1826,59 @@ document
     }
   );
 
+}
 
 
 /* =====================================================
-   เริ่มต้น
+   ENTER เพื่อส่ง
    ===================================================== */
 
-logDebug(
+questionElement.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (
+      event.key ===
+      "Enter"
+    ) {
+
+      event.preventDefault();
+
+
+      unlockAudio();
+
+
+      const text =
+        this.value.trim();
+
+
+      if (!text) {
+
+        return;
+
+      }
+
+
+      askAI(text);
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   INITIALIZE
+   ===================================================== */
+
+log(
   "Cucumber AI พร้อมทำงาน"
 );
 
 
 </script>
 
-
 </body>
 
 </html>
+```
