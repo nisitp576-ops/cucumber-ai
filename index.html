@@ -793,107 +793,177 @@ function askAI(question) {
    Text → Speech
    ===================================================== */
 
-function speak(text) {
+async function speak(text) {
 
-
-  if (
-    !(
-      "speechSynthesis"
-      in window
-    )
-  ) {
-
-
-    document
-      .getElementById(
-        "status"
-      )
-      .innerText =
-      "เบราว์เซอร์ไม่รองรับการอ่านเสียง";
-
-
+  if (!text || !text.trim()) {
     return;
-
   }
 
+  const status =
+    document.getElementById("status");
+
+  status.innerText =
+    "🎙️ กำลังสร้างเสียงตอบ...";
+
+  try {
+
+    // 1. ขอข้อมูลการออกเสียงจาก VOICEVOX
+    const queryResponse =
+      await fetch(
+        "http://127.0.0.1:50021/audio_query?speaker=7&text=" +
+        encodeURIComponent(text),
+        {
+          method: "POST"
+        }
+      );
+
+    if (!queryResponse.ok) {
+      throw new Error(
+        "VOICEVOX audio_query HTTP " +
+        queryResponse.status
+      );
+    }
+
+    const query =
+      await queryResponse.json();
 
 
-  speechSynthesis.cancel();
+    // 2. ปรับเสียงเล็กน้อย
+    query.speedScale = 1.0;
+    query.pitchScale = 0;
+    query.intonationScale = 1.05;
+    query.volumeScale = 1.0;
 
 
+    // 3. ขอไฟล์เสียงจาก VOICEVOX
+    const synthesisResponse =
+      await fetch(
+        "http://127.0.0.1:50021/synthesis?speaker=7",
+        {
+          method: "POST",
 
-  const utterance =
-    new SpeechSynthesisUtterance(
-      text
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(query)
+        }
+      );
+
+    if (!synthesisResponse.ok) {
+      throw new Error(
+        "VOICEVOX synthesis HTTP " +
+        synthesisResponse.status
+      );
+    }
+
+
+    // 4. รับเสียง WAV
+    const audioBlob =
+      await synthesisResponse.blob();
+
+
+    // 5. เล่นเสียง
+    const audioUrl =
+      URL.createObjectURL(audioBlob);
+
+    const audio =
+      new Audio(audioUrl);
+
+    audio.volume = 1.0;
+
+
+    status.innerText =
+      "🔊 ずんだもんกำลังพูด...";
+
+
+    audio.onended =
+      function () {
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+        status.innerText =
+          "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+
+      };
+
+
+    audio.onerror =
+      function () {
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+        status.innerText =
+          "สร้างเสียงได้ แต่เปิดเสียงไม่ได้";
+
+      };
+
+
+    await audio.play();
+
+
+  } catch (error) {
+
+    console.error(
+      "VOICEVOX error:",
+      error
     );
 
 
-
-  utterance.lang =
-    "th-TH";
-
-
-  utterance.rate =
-    0.95;
+    status.innerText =
+      "⚠️ VOICEVOX เชื่อมต่อไม่ได้";
 
 
-  utterance.pitch =
-    1;
+    // ถ้า VOICEVOX ใช้งานไม่ได้
+    // ให้กลับไปใช้เสียงของ Browser
+    if (
+      "speechSynthesis" in window
+    ) {
+
+      speechSynthesis.cancel();
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          text
+        );
+
+      utterance.lang =
+        "th-TH";
+
+      utterance.rate =
+        0.95;
+
+      utterance.pitch =
+        1;
+
+      utterance.volume =
+        1;
 
 
-  utterance.volume =
-    1;
+      utterance.onend =
+        function () {
+
+          status.innerText =
+            "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+
+        };
 
 
+      speechSynthesis.speak(
+        utterance
+      );
 
-  utterance.onstart =
-    function () {
+    }
 
-      document
-        .getElementById(
-          "status"
-        )
-        .innerText =
-        "🔊 กำลังพูดตอบ...";
-
-    };
-
-
-
-  utterance.onend =
-    function () {
-
-      document
-        .getElementById(
-          "status"
-        )
-        .innerText =
-        "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
-
-    };
-
-
-
-  utterance.onerror =
-    function () {
-
-      document
-        .getElementById(
-          "status"
-        )
-        .innerText =
-        "ตอบข้อความแล้ว แต่ไม่สามารถเปิดเสียงได้";
-
-    };
-
-
-
-  speechSynthesis.speak(
-    utterance
-  );
+  }
 
 }
-
 
 
 /* =====================================================
