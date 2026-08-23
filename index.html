@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="th">
 
@@ -701,7 +702,11 @@ function askAI(question) {
         "🔊 กำลังพูดตอบ...";
 
 
-      speak(こんにちは、ずんだもんです。今日のキュウリの様子を確認するのだ。);
+      /* สำคัญ:
+         ให้ VOICEVOX อ่านคำตอบจริงจาก AI
+      */
+
+      speak(answer);
 
     };
 
@@ -791,243 +796,345 @@ function askAI(question) {
 
 /* =====================================================
    Text → Speech
+   VOICEVOX ID 7
    ===================================================== */
-
-# speak() สำหรับทดสอบ VOICEVOX ID 7
 
 async function speak(text) {
 
-if (!text || !text.trim()) {
-return;
-}
 
-const status =
-document.getElementById("status");
+  if (
+    !text ||
+    !text.trim()
+  ) {
 
-status.innerText =
-"🎙️ กำลังเชื่อมต่อ VOICEVOX...";
+    return;
 
-const VOICEVOX_URL =
-"http://127.0.0.1:50021";
-
-const SPEAKER_ID = 7;
-try {
-
-
-console.log(
-  "VOICEVOX เริ่มสร้างเสียง",
-  {
-    url: VOICEVOX_URL,
-    speaker: SPEAKER_ID,
-    text: text
   }
-);
-
-// 1. ตรวจว่า VOICEVOX Engine เปิดอยู่หรือไม่
-const versionResponse =
-  await fetch(
-    VOICEVOX_URL + "/version",
-    {
-      method: "GET"
-    }
-  );
-
-if (!versionResponse.ok) {
-
-  throw new Error(
-    "VOICEVOX /version HTTP " +
-    versionResponse.status
-  );
-}
-
-const version =
-  await versionResponse.text();
-
-console.log(
-  "VOICEVOX version:",
-  version
-);
-
-status.innerText =
-  "🎙️ VOICEVOX " +
-  version +
-  " เชื่อมต่อแล้ว กำลังสร้างเสียง...";
 
 
-// 2. สร้าง audio_query
-const queryResponse =
-  await fetch(
-    VOICEVOX_URL +
-    "/audio_query?speaker=" +
-    SPEAKER_ID +
-    "&text=" +
-    encodeURIComponent(text),
-    {
-      method: "POST"
-    }
-  );
-
-if (!queryResponse.ok) {
-
-  const errorText =
-    await queryResponse.text();
-
-  throw new Error(
-    "VOICEVOX audio_query HTTP " +
-    queryResponse.status +
-    ": " +
-    errorText
-  );
-}
-
-const query =
-  await queryResponse.json();
-
-
-// 3. ปรับบุคลิกเสียง ずんだもん ID 7
-query.speedScale = 1.0;
-
-query.pitchScale = 0.02;
-
-query.intonationScale = 1.08;
-
-query.volumeScale = 1.0;
-
-
-// 4. สร้างไฟล์ WAV
-const synthesisResponse =
-  await fetch(
-    VOICEVOX_URL +
-    "/synthesis?speaker=" +
-    SPEAKER_ID,
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type":
-          "application/json",
-
-        "Accept":
-          "audio/wav"
-      },
-
-      body:
-        JSON.stringify(query)
-    }
-  );
-
-if (!synthesisResponse.ok) {
-
-  const errorText =
-    await synthesisResponse.text();
-
-  throw new Error(
-    "VOICEVOX synthesis HTTP " +
-    synthesisResponse.status +
-    ": " +
-    errorText
-  );
-}
-
-
-// 5. รับ WAV
-const audioBlob =
-  await synthesisResponse.blob();
-
-if (
-  !audioBlob ||
-  audioBlob.size === 0
-) {
-
-  throw new Error(
-    "VOICEVOX ส่งไฟล์เสียงว่างกลับมา"
-  );
-}
-
-
-// 6. เล่นเสียง
-const audioUrl =
-  URL.createObjectURL(
-    audioBlob
-  );
-
-const audio =
-  new Audio(audioUrl);
-
-audio.volume = 1.0;
-
-status.innerText =
-  "🔊 ずんだもん กำลังพูด...";
-
-
-audio.onended =
-  function () {
-
-    URL.revokeObjectURL(
-      audioUrl
+  const status =
+    document.getElementById(
+      "status"
     );
 
-    status.innerText =
-      "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
-  };
+
+  status.innerText =
+    "🎙️ กำลังเชื่อมต่อ VOICEVOX...";
 
 
-audio.onerror =
-  function () {
+  const VOICEVOX_URL =
+    "http://127.0.0.1:50021";
 
-    URL.revokeObjectURL(
-      audioUrl
+
+  const SPEAKER_ID =
+    7;
+
+
+  try {
+
+
+    console.log(
+      "VOICEVOX เริ่มสร้างเสียง",
+      {
+        url:
+          VOICEVOX_URL,
+
+        speaker:
+          SPEAKER_ID,
+
+        text:
+          text
+      }
     );
 
+
+    /* =================================================
+       1. ตรวจว่า VOICEVOX Engine เปิดอยู่หรือไม่
+       ================================================= */
+
+    const versionResponse =
+      await fetch(
+        VOICEVOX_URL +
+        "/version",
+        {
+          method:
+            "GET"
+        }
+      );
+
+
+    if (
+      !versionResponse.ok
+    ) {
+
+      throw new Error(
+        "VOICEVOX /version HTTP " +
+        versionResponse.status
+      );
+
+    }
+
+
+    const version =
+      await versionResponse.text();
+
+
+    console.log(
+      "VOICEVOX version:",
+      version
+    );
+
+
     status.innerText =
-      "❌ สร้างเสียงสำเร็จ แต่เปิดไฟล์เสียงไม่ได้";
+      "🎙️ VOICEVOX " +
+      version +
+      " เชื่อมต่อแล้ว กำลังสร้างเสียง...";
+
+
+
+    /* =================================================
+       2. สร้าง audio_query
+       ================================================= */
+
+    const queryResponse =
+      await fetch(
+        VOICEVOX_URL +
+        "/audio_query?speaker=" +
+        SPEAKER_ID +
+        "&text=" +
+        encodeURIComponent(
+          text
+        ),
+        {
+          method:
+            "POST"
+        }
+      );
+
+
+    if (
+      !queryResponse.ok
+    ) {
+
+      const errorText =
+        await queryResponse.text();
+
+
+      throw new Error(
+        "VOICEVOX audio_query HTTP " +
+        queryResponse.status +
+        ": " +
+        errorText
+      );
+
+    }
+
+
+    const query =
+      await queryResponse.json();
+
+
+
+    /* =================================================
+       3. ปรับบุคลิกเสียง
+       ================================================= */
+
+    query.speedScale =
+      1.0;
+
+    query.pitchScale =
+      0.02;
+
+    query.intonationScale =
+      1.08;
+
+    query.volumeScale =
+      1.0;
+
+
+
+    /* =================================================
+       4. สร้างไฟล์ WAV
+       ================================================= */
+
+    const synthesisResponse =
+      await fetch(
+        VOICEVOX_URL +
+        "/synthesis?speaker=" +
+        SPEAKER_ID,
+        {
+
+          method:
+            "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            "Accept":
+              "audio/wav"
+
+          },
+
+          body:
+            JSON.stringify(
+              query
+            )
+
+        }
+      );
+
+
+    if (
+      !synthesisResponse.ok
+    ) {
+
+      const errorText =
+        await synthesisResponse.text();
+
+
+      throw new Error(
+        "VOICEVOX synthesis HTTP " +
+        synthesisResponse.status +
+        ": " +
+        errorText
+      );
+
+    }
+
+
+
+    /* =================================================
+       5. รับไฟล์ WAV
+       ================================================= */
+
+    const audioBlob =
+      await synthesisResponse.blob();
+
+
+    if (
+      !audioBlob ||
+      audioBlob.size === 0
+    ) {
+
+      throw new Error(
+        "VOICEVOX ส่งไฟล์เสียงว่างกลับมา"
+      );
+
+    }
+
+
+
+    /* =================================================
+       6. เล่นเสียง
+       ================================================= */
+
+    const audioUrl =
+      URL.createObjectURL(
+        audioBlob
+      );
+
+
+    const audio =
+      new Audio(
+        audioUrl
+      );
+
+
+    audio.volume =
+      1.0;
+
+
+    status.innerText =
+      "🔊 ずんだもん กำลังพูด...";
+
+
+    audio.onended =
+      function () {
+
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+
+        status.innerText =
+          "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+
+      };
+
+
+    audio.onerror =
+      function () {
+
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+
+        status.innerText =
+          "❌ สร้างเสียงสำเร็จ แต่เปิดไฟล์เสียงไม่ได้";
+
+
+        console.error(
+          "VOICEVOX audio playback error"
+        );
+
+      };
+
+
+    await audio.play();
+
+
+  }
+
+
+  catch (error) {
+
 
     console.error(
-      "VOICEVOX audio playback error"
+      "VOICEVOX ERROR:",
+      error
     );
-  };
 
 
-await audio.play();
+    const message =
+      error &&
+      error.message
+        ? error.message
+        : String(error);
 
 
-} catch (error) {
+
+    /* แสดงสาเหตุจริงบนหน้าเว็บ */
+
+    status.innerText =
+      "❌ VOICEVOX ERROR: " +
+      message;
 
 
-console.error(
-  "VOICEVOX ERROR:",
-  error
-);
 
-const message =
-  error &&
-  error.message
-    ? error.message
-    : String(error);
+    /* แสดงใน answer ด้วย */
+
+    const answer =
+      document.getElementById(
+        "answer"
+      );
 
 
-// แสดงสาเหตุจริงบนหน้าเว็บ
-status.innerText =
-  "❌ VOICEVOX ERROR: " +
-  message;
+    if (answer) {
 
+      answer.innerText =
+        answer.innerText +
+        "\n\n[VOICEVOX ERROR]\n" +
+        message;
 
-// แสดงใน answer ด้วย
-const answer =
-  document.getElementById(
-    "answer"
-  );
+    }
 
-if (answer) {
+  }
 
-  answer.innerText =
-    answer.innerText +
-    "\n\n[VOICEVOX ERROR]\n" +
-    message;
-}
-
-
-}
 }
 
 
@@ -1062,10 +1169,10 @@ document
   );
 
 
-
 </script>
 
 
 </body>
 
 </html>
+```
