@@ -3,7 +3,6 @@
 <html lang="th">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -13,18 +12,14 @@
 
   <title>Cucumber AI</title>
 
-
   <style>
 
     * {
       box-sizing: border-box;
     }
 
-
     body {
-
       margin: 0;
-
       min-height: 100vh;
 
       background:
@@ -42,107 +37,64 @@
         sans-serif;
 
       display: flex;
-
       justify-content: center;
-
       align-items: center;
     }
 
-
     .app {
-
       width: 100%;
-
       max-width: 600px;
-
       padding: 30px 20px 40px;
-
       text-align: center;
     }
 
-
     .robot {
-
       font-size: 70px;
-
       margin-bottom: 5px;
     }
 
-
     h1 {
-
       margin: 0;
-
       font-size: 30px;
-
       font-weight: 600;
     }
 
-
     #status {
-
-      margin:
-        18px
-        0
-        30px;
-
+      margin: 18px 0 30px;
       color: #aaa;
-
       min-height: 25px;
     }
 
-
     #micButton {
-
       width: 180px;
-
       height: 180px;
 
       border-radius: 50%;
-
       border: none;
 
       background: #20252b;
-
       color: white;
 
       font-size: 70px;
-
       cursor: pointer;
 
       transition: 0.2s;
 
       box-shadow:
         0 0 35px
-        rgba(
-          255,
-          255,
-          255,
-          0.12
-        );
+        rgba(255, 255, 255, 0.12);
     }
-
 
     #micButton:active {
-
-      transform:
-        scale(0.94);
+      transform: scale(0.94);
     }
 
-
     #micButton.listening {
-
-      background:
-        #b71c1c;
+      background: #b71c1c;
 
       box-shadow:
         0 0 60px
-        rgba(
-          244,
-          67,
-          54,
-          0.65
-        );
+        rgba(244, 67, 54, 0.65);
 
       animation:
         pulse
@@ -150,33 +102,26 @@
         infinite;
     }
 
-
     @keyframes pulse {
 
       0% {
-        transform:
-          scale(1);
+        transform: scale(1);
       }
 
       50% {
-        transform:
-          scale(1.06);
+        transform: scale(1.06);
       }
 
       100% {
-        transform:
-          scale(1);
+        transform: scale(1);
       }
 
     }
 
-
     #question {
-
       width: 100%;
 
       margin-top: 30px;
-
       padding: 15px;
 
       border-radius: 12px;
@@ -185,27 +130,19 @@
         1px solid
         #333;
 
-      background:
-        #191c20;
-
+      background: #191c20;
       color: white;
 
       font-size: 18px;
-
       outline: none;
     }
 
-
     #question::placeholder {
-
       color: #777;
     }
 
-
     #answer {
-
       margin-top: 25px;
-
       padding: 20px;
 
       border-radius: 15px;
@@ -221,7 +158,6 @@
       text-align: left;
 
       line-height: 1.7;
-
       font-size: 18px;
 
       min-height: 100px;
@@ -229,13 +165,9 @@
       white-space: pre-wrap;
     }
 
-
     .hint {
-
       margin-top: 20px;
-
       color: #666;
-
       font-size: 14px;
     }
 
@@ -246,37 +178,26 @@
 
 <body>
 
-
 <div class="app">
-
 
   <div class="robot">
     🤖
   </div>
 
-
   <h1>
     Cucumber AI
   </h1>
 
-
   <div id="status">
-
-    พร้อมครับ
-    กดไมค์แล้วพูดได้เลย
-
+    พร้อมครับ กดไมค์แล้วพูดได้เลย
   </div>
-
 
   <button
     id="micButton"
     type="button"
   >
-
     🎙️
-
   </button>
-
 
   <input
     id="question"
@@ -285,161 +206,123 @@
     autocomplete="off"
   >
 
-
   <div id="answer">
-
     รอคำถามจากคุณ...
-
   </div>
-
 
   <div class="hint">
-
-    กดไมค์ →
-    พูด →
-    AI วิเคราะห์ →
-    AI พูดตอบ
-
+    กดไมค์ → พูด → AI วิเคราะห์ → AI พูดตอบ
   </div>
 
-
 </div>
-
 
 
 <script>
 
 
 /* =====================================================
-   URL ของ Google Apps Script
+   Google Apps Script
    ===================================================== */
 
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxuuetkVQLCHCr0IF2RF_1o11jXsW9jaORL6UvoLV1g_d2x35k8wZoeIpai-nFpiHbv/exec";
 
 
+/* =====================================================
+   VOICEVOX
+   ===================================================== */
+
+const VOICEVOX_URL =
+  "http://127.0.0.1:50021";
+
+const SPEAKER_ID = 7;
+
 
 /* =====================================================
    Speech Recognition
    ===================================================== */
 
-let recognition =
-  null;
-
-let listening =
-  false;
-
+let recognition = null;
+let listening = false;
 
 const SpeechRecognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
 
 
-
 if (!SpeechRecognition) {
 
-  document.getElementById(
-    "status"
-  ).innerText =
+  document.getElementById("status").innerText =
     "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
 
-
 } else {
-
 
   recognition =
     new SpeechRecognition();
 
-
   recognition.lang =
     "th-TH";
-
 
   recognition.continuous =
     false;
 
-
   recognition.interimResults =
     false;
-
 
   recognition.maxAlternatives =
     1;
 
 
-
   recognition.onstart =
     function () {
 
-
-      listening =
-        true;
-
+      listening = true;
 
       document
-        .getElementById(
-          "micButton"
-        )
+        .getElementById("micButton")
         .classList
-        .add(
-          "listening"
-        );
-
+        .add("listening");
 
       document
-        .getElementById(
-          "status"
-        )
+        .getElementById("status")
         .innerText =
         "🎙️ กำลังฟังครับ...";
 
     };
 
 
-
   recognition.onresult =
     function (event) {
 
-
       const text =
-        event
-          .results[0][0]
-          .transcript;
-
+        event.results[0][0].transcript.trim();
 
       document
-        .getElementById(
-          "question"
-        )
+        .getElementById("question")
         .value =
         text;
 
-
       stopListening();
 
-
-      askAI(text);
+      if (text) {
+        askAI(text);
+      }
 
     };
 
 
-
   recognition.onerror =
     function (event) {
-
 
       console.log(
         "Speech error:",
         event.error
       );
 
-
       stopListening();
-
 
       let message =
         "รับเสียงไม่ได้ครับ";
-
 
       if (
         event.error ===
@@ -449,9 +332,7 @@ if (!SpeechRecognition) {
         message =
           "ไม่ได้รับอนุญาตให้ใช้ไมโครโฟนครับ";
 
-      }
-
-      else if (
+      } else if (
         event.error ===
         "no-speech"
       ) {
@@ -459,9 +340,7 @@ if (!SpeechRecognition) {
         message =
           "ไม่ได้ยินเสียงพูดครับ";
 
-      }
-
-      else if (
+      } else if (
         event.error ===
         "network"
       ) {
@@ -471,16 +350,12 @@ if (!SpeechRecognition) {
 
       }
 
-
       document
-        .getElementById(
-          "status"
-        )
+        .getElementById("status")
         .innerText =
         message;
 
     };
-
 
 
   recognition.onend =
@@ -493,16 +368,15 @@ if (!SpeechRecognition) {
 }
 
 
+/* =====================================================
+   เริ่มฟัง
+   ===================================================== */
 
 function startListening() {
 
-
   if (!recognition) {
-
     return;
-
   }
-
 
   if (listening) {
 
@@ -512,66 +386,66 @@ function startListening() {
 
   }
 
-
   try {
 
     recognition.start();
 
-  }
+  } catch (error) {
 
-  catch (error) {
-
-    console.log(error);
+    console.log(
+      "Recognition start error:",
+      error
+    );
 
   }
 
 }
 
 
+/* =====================================================
+   หยุดฟัง
+   ===================================================== */
 
 function stopListening() {
 
-
-  listening =
-    false;
-
+  listening = false;
 
   document
-    .getElementById(
-      "micButton"
-    )
+    .getElementById("micButton")
     .classList
-    .remove(
-      "listening"
-    );
+    .remove("listening");
 
 }
 
 
+/* =====================================================
+   ปุ่มไมโครโฟน
+   ===================================================== */
 
 document
-  .getElementById(
-    "micButton"
-  )
+  .getElementById("micButton")
   .addEventListener(
     "click",
     startListening
   );
 
 
-
 /* =====================================================
-   ส่งคำถามไป Apps Script
-   ใช้ JSONP
+   ส่งคำถามไป Google Apps Script
+   JSONP
    ===================================================== */
 
 function askAI(question) {
 
+  question =
+    String(question || "").trim();
 
-  if (
-    !question ||
-    !question.trim()
-  ) {
+  if (!question) {
+
+    document
+      .getElementById("status")
+      .innerText =
+      "กรุณาพิมพ์คำถามก่อนครับ";
 
     return;
 
@@ -579,20 +453,15 @@ function askAI(question) {
 
 
   document
-    .getElementById(
-      "status"
-    )
+    .getElementById("status")
     .innerText =
     "🤖 กำลังวิเคราะห์...";
 
 
   document
-    .getElementById(
-      "answer"
-    )
+    .getElementById("answer")
     .innerText =
     "กำลังอ่านข้อมูลจากสวน...";
-
 
 
   const callbackName =
@@ -600,85 +469,59 @@ function askAI(question) {
     Date.now() +
     "_" +
     Math.floor(
-      Math.random() *
-      100000
+      Math.random() * 100000
     );
 
 
-
-  let script =
-    document.createElement(
-      "script"
-    );
+  const script =
+    document.createElement("script");
 
 
-
-  let completed =
-    false;
-
+  let completed = false;
 
 
   window[callbackName] =
     function (result) {
 
-
       if (completed) {
-
         return;
+      }
+
+      completed = true;
+
+
+      if (script.parentNode) {
+
+        script.parentNode.removeChild(
+          script
+        );
 
       }
 
 
-      completed =
-        true;
+      delete window[callbackName];
 
 
-
-      if (
-        script.parentNode
-      ) {
-
-        script
-          .parentNode
-          .removeChild(
-            script
-          );
-
-      }
+      result =
+        result || {};
 
 
-
-      delete window[
-        callbackName
-      ];
-
-
-
-      if (
-        result.error
-      ) {
-
+      if (result.error) {
 
         document
-          .getElementById(
-            "status"
-          )
+          .getElementById("status")
           .innerText =
           "❌ เกิดข้อผิดพลาด";
 
 
         document
-          .getElementById(
-            "answer"
-          )
+          .getElementById("answer")
           .innerText =
           result.error;
-
 
         return;
 
       }
-
 
 
       const answer =
@@ -687,23 +530,21 @@ function askAI(question) {
 
 
       document
-        .getElementById(
-          "answer"
-        )
+        .getElementById("answer")
         .innerText =
         answer;
 
 
       document
-        .getElementById(
-          "status"
-        )
+        .getElementById("status")
         .innerText =
         "🔊 กำลังพูดตอบ...";
 
 
-      /* สำคัญ:
-         ให้ VOICEVOX อ่านคำตอบจริงจาก AI
+      /*
+        สำคัญ:
+        ให้ VOICEVOX อ่านคำตอบจริง
+        จาก Gemini
       */
 
       speak(answer);
@@ -711,123 +552,82 @@ function askAI(question) {
     };
 
 
-
   const url =
     APPS_SCRIPT_URL +
     "?question=" +
-    encodeURIComponent(
-      question
-    ) +
+    encodeURIComponent(question) +
     "&callback=" +
-    encodeURIComponent(
-      callbackName
-    );
-
+    encodeURIComponent(callbackName);
 
 
   script.src =
     url;
 
 
-
   script.onerror =
     function () {
 
-
       if (completed) {
-
         return;
-
       }
 
-
-      completed =
-        true;
+      completed = true;
 
 
-      delete window[
-        callbackName
-      ];
+      delete window[callbackName];
 
 
+      if (script.parentNode) {
 
-      if (
-        script.parentNode
-      ) {
-
-        script
-          .parentNode
-          .removeChild(
-            script
-          );
+        script.parentNode.removeChild(
+          script
+        );
 
       }
-
 
 
       document
-        .getElementById(
-          "status"
-        )
+        .getElementById("status")
         .innerText =
         "❌ เชื่อมต่อ AI ไม่สำเร็จ";
 
 
       document
-        .getElementById(
-          "answer"
-        )
+        .getElementById("answer")
         .innerText =
         "ไม่สามารถเชื่อมต่อระบบ AI ได้ครับ";
 
     };
 
 
-
   document
     .body
-    .appendChild(
-      script
-    );
+    .appendChild(script);
 
 }
 
 
-
 /* =====================================================
-   Text → Speech
-   VOICEVOX ID 7
+   VOICEVOX Text → Speech
    ===================================================== */
 
 async function speak(text) {
 
+  text =
+    String(text || "").trim();
 
-  if (
-    !text ||
-    !text.trim()
-  ) {
 
+  if (!text) {
     return;
-
   }
 
 
   const status =
-    document.getElementById(
-      "status"
-    );
+    document.getElementById("status");
 
 
   status.innerText =
     "🎙️ กำลังเชื่อมต่อ VOICEVOX...";
-
-
-  const VOICEVOX_URL =
-    "http://127.0.0.1:50021";
-
-
-  const SPEAKER_ID =
-    7;
 
 
   try {
@@ -836,36 +636,27 @@ async function speak(text) {
     console.log(
       "VOICEVOX เริ่มสร้างเสียง",
       {
-        url:
-          VOICEVOX_URL,
-
-        speaker:
-          SPEAKER_ID,
-
-        text:
-          text
+        url: VOICEVOX_URL,
+        speaker: SPEAKER_ID,
+        text: text
       }
     );
 
 
-    /* =================================================
-       1. ตรวจว่า VOICEVOX Engine เปิดอยู่หรือไม่
-       ================================================= */
+    /* -------------------------------------------------
+       1. ตรวจ VOICEVOX
+       ------------------------------------------------- */
 
     const versionResponse =
       await fetch(
-        VOICEVOX_URL +
-        "/version",
+        VOICEVOX_URL + "/version",
         {
-          method:
-            "GET"
+          method: "GET"
         }
       );
 
 
-    if (
-      !versionResponse.ok
-    ) {
+    if (!versionResponse.ok) {
 
       throw new Error(
         "VOICEVOX /version HTTP " +
@@ -888,13 +679,12 @@ async function speak(text) {
     status.innerText =
       "🎙️ VOICEVOX " +
       version +
-      " เชื่อมต่อแล้ว กำลังสร้างเสียง...";
+      " เชื่อมต่อแล้ว";
 
 
-
-    /* =================================================
+    /* -------------------------------------------------
        2. สร้าง audio_query
-       ================================================= */
+       ------------------------------------------------- */
 
     const queryResponse =
       await fetch(
@@ -902,23 +692,17 @@ async function speak(text) {
         "/audio_query?speaker=" +
         SPEAKER_ID +
         "&text=" +
-        encodeURIComponent(
-          text
-        ),
+        encodeURIComponent(text),
         {
-          method:
-            "POST"
+          method: "POST"
         }
       );
 
 
-    if (
-      !queryResponse.ok
-    ) {
+    if (!queryResponse.ok) {
 
       const errorText =
         await queryResponse.text();
-
 
       throw new Error(
         "VOICEVOX audio_query HTTP " +
@@ -934,10 +718,9 @@ async function speak(text) {
       await queryResponse.json();
 
 
-
-    /* =================================================
-       3. ปรับบุคลิกเสียง
-       ================================================= */
+    /* -------------------------------------------------
+       3. ปรับเสียง
+       ------------------------------------------------- */
 
     query.speedScale =
       1.0;
@@ -952,10 +735,9 @@ async function speak(text) {
       1.0;
 
 
-
-    /* =================================================
-       4. สร้างไฟล์ WAV
-       ================================================= */
+    /* -------------------------------------------------
+       4. สร้าง WAV
+       ------------------------------------------------- */
 
     const synthesisResponse =
       await fetch(
@@ -963,36 +745,26 @@ async function speak(text) {
         "/synthesis?speaker=" +
         SPEAKER_ID,
         {
-
-          method:
-            "POST",
+          method: "POST",
 
           headers: {
-
             "Content-Type":
               "application/json",
 
             "Accept":
               "audio/wav"
-
           },
 
           body:
-            JSON.stringify(
-              query
-            )
-
+            JSON.stringify(query)
         }
       );
 
 
-    if (
-      !synthesisResponse.ok
-    ) {
+    if (!synthesisResponse.ok) {
 
       const errorText =
         await synthesisResponse.text();
-
 
       throw new Error(
         "VOICEVOX synthesis HTTP " +
@@ -1004,10 +776,9 @@ async function speak(text) {
     }
 
 
-
-    /* =================================================
-       5. รับไฟล์ WAV
-       ================================================= */
+    /* -------------------------------------------------
+       5. รับไฟล์เสียง
+       ------------------------------------------------- */
 
     const audioBlob =
       await synthesisResponse.blob();
@@ -1025,10 +796,9 @@ async function speak(text) {
     }
 
 
-
-    /* =================================================
+    /* -------------------------------------------------
        6. เล่นเสียง
-       ================================================= */
+       ------------------------------------------------- */
 
     const audioUrl =
       URL.createObjectURL(
@@ -1037,9 +807,7 @@ async function speak(text) {
 
 
     const audio =
-      new Audio(
-        audioUrl
-      );
+      new Audio(audioUrl);
 
 
     audio.volume =
@@ -1053,11 +821,9 @@ async function speak(text) {
     audio.onended =
       function () {
 
-
         URL.revokeObjectURL(
           audioUrl
         );
-
 
         status.innerText =
           "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
@@ -1068,15 +834,12 @@ async function speak(text) {
     audio.onerror =
       function () {
 
-
         URL.revokeObjectURL(
           audioUrl
         );
 
-
         status.innerText =
           "❌ สร้างเสียงสำเร็จ แต่เปิดไฟล์เสียงไม่ได้";
-
 
         console.error(
           "VOICEVOX audio playback error"
@@ -1088,10 +851,7 @@ async function speak(text) {
     await audio.play();
 
 
-  }
-
-
-  catch (error) {
+  } catch (error) {
 
 
     console.error(
@@ -1107,16 +867,10 @@ async function speak(text) {
         : String(error);
 
 
-
-    /* แสดงสาเหตุจริงบนหน้าเว็บ */
-
     status.innerText =
       "❌ VOICEVOX ERROR: " +
       message;
 
-
-
-    /* แสดงใน answer ด้วย */
 
     const answer =
       document.getElementById(
@@ -1138,30 +892,25 @@ async function speak(text) {
 }
 
 
-
 /* =====================================================
-   Enter เพื่อส่งคำถาม
+   พิมพ์คำถามแล้วกด Enter
    ===================================================== */
 
 document
-  .getElementById(
-    "question"
-  )
+  .getElementById("question")
   .addEventListener(
     "keydown",
     function (event) {
 
-
       if (
-        event.key ===
-        "Enter"
+        event.key === "Enter"
       ) {
 
+        event.preventDefault();
 
         askAI(
           this.value
         );
-
 
       }
 
@@ -1169,10 +918,30 @@ document
   );
 
 
+/* =====================================================
+   ทดสอบ VOICEVOX ด้วยการกด F9
+   ===================================================== */
+
+document.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (
+      event.key === "F9"
+    ) {
+
+      speak(
+        "สวัสดีครับ ผมซุนดะมอน วันนี้เรามาตรวจดูแตงกวากันครับ"
+      );
+
+    }
+
+  }
+);
+
+
 </script>
 
-
 </body>
-
 </html>
 ```
