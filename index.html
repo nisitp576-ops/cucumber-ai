@@ -3,6 +3,7 @@
 <html lang="th">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -163,12 +164,70 @@
       min-height: 100px;
 
       white-space: pre-wrap;
+
+      overflow-wrap: anywhere;
     }
 
     .hint {
       margin-top: 20px;
       color: #666;
       font-size: 14px;
+    }
+
+    #voiceTestButton {
+      margin-top: 18px;
+
+      padding: 12px 18px;
+
+      border: 1px solid #444;
+      border-radius: 10px;
+
+      background: #181c20;
+      color: #ddd;
+
+      cursor: pointer;
+
+      font-size: 15px;
+    }
+
+    #voiceTestButton:hover {
+      background: #252a30;
+    }
+
+    #debug {
+      display: none;
+
+      margin-top: 20px;
+
+      padding: 15px;
+
+      border-radius: 12px;
+
+      background: #080a0c;
+
+      border:
+        1px solid
+        #292d31;
+
+      color: #aaa;
+
+      text-align: left;
+
+      font-family:
+        Consolas,
+        monospace;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+
+      white-space: pre-wrap;
+
+      overflow-wrap: anywhere;
+
+      max-height: 300px;
+
+      overflow-y: auto;
     }
 
   </style>
@@ -214,6 +273,15 @@
     กดไมค์ → พูด → AI วิเคราะห์ → AI พูดตอบ
   </div>
 
+  <button
+    id="voiceTestButton"
+    type="button"
+  >
+    🔊 ทดสอบ VOICEVOX
+  </button>
+
+  <div id="debug"></div>
+
 </div>
 
 
@@ -221,7 +289,7 @@
 
 
 /* =====================================================
-   Google Apps Script
+   GOOGLE APPS SCRIPT
    ===================================================== */
 
 const APPS_SCRIPT_URL =
@@ -232,18 +300,104 @@ const APPS_SCRIPT_URL =
    VOICEVOX
    ===================================================== */
 
-const VOICEVOX_URL =
-  "http://127.0.0.1:50021";
+const VOICEVOX_URLS = [
+  "http://127.0.0.1:50021",
+  "http://localhost:50021"
+];
 
 const SPEAKER_ID = 7;
 
 
 /* =====================================================
-   Speech Recognition
+   ELEMENTS
    ===================================================== */
 
-let recognition = null;
-let listening = false;
+const statusElement =
+  document.getElementById("status");
+
+const answerElement =
+  document.getElementById("answer");
+
+const questionElement =
+  document.getElementById("question");
+
+const micButton =
+  document.getElementById("micButton");
+
+const debugElement =
+  document.getElementById("debug");
+
+const voiceTestButton =
+  document.getElementById("voiceTestButton");
+
+
+/* =====================================================
+   DEBUG
+   ===================================================== */
+
+function debugLog(message, data) {
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  let line =
+    "[" + time + "] " + message;
+
+  if (data !== undefined) {
+
+    try {
+
+      line +=
+        " | " +
+        JSON.stringify(
+          data,
+          null,
+          2
+        );
+
+    } catch (error) {
+
+      line +=
+        " | " +
+        String(data);
+
+    }
+
+  }
+
+  console.log(line);
+
+  debugElement.style.display =
+    "block";
+
+  debugElement.textContent +=
+    line +
+    "\n";
+
+}
+
+
+function clearDebug() {
+
+  debugElement.textContent =
+    "";
+
+  debugElement.style.display =
+    "none";
+
+}
+
+
+/* =====================================================
+   SPEECH RECOGNITION
+   ===================================================== */
+
+let recognition =
+  null;
+
+let listening =
+  false;
+
 
 const SpeechRecognition =
   window.SpeechRecognition ||
@@ -252,7 +406,7 @@ const SpeechRecognition =
 
 if (!SpeechRecognition) {
 
-  document.getElementById("status").innerText =
+  statusElement.innerText =
     "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
 
 } else {
@@ -276,16 +430,14 @@ if (!SpeechRecognition) {
   recognition.onstart =
     function () {
 
-      listening = true;
+      listening =
+        true;
 
-      document
-        .getElementById("micButton")
+      micButton
         .classList
         .add("listening");
 
-      document
-        .getElementById("status")
-        .innerText =
+      statusElement.innerText =
         "🎙️ กำลังฟังครับ...";
 
     };
@@ -295,17 +447,20 @@ if (!SpeechRecognition) {
     function (event) {
 
       const text =
-        event.results[0][0].transcript.trim();
+        event
+          .results[0][0]
+          .transcript
+          .trim();
 
-      document
-        .getElementById("question")
-        .value =
+      questionElement.value =
         text;
 
       stopListening();
 
       if (text) {
+
         askAI(text);
+
       }
 
     };
@@ -350,9 +505,7 @@ if (!SpeechRecognition) {
 
       }
 
-      document
-        .getElementById("status")
-        .innerText =
+      statusElement.innerText =
         message;
 
     };
@@ -369,13 +522,15 @@ if (!SpeechRecognition) {
 
 
 /* =====================================================
-   เริ่มฟัง
+   START LISTENING
    ===================================================== */
 
 function startListening() {
 
   if (!recognition) {
+
     return;
+
   }
 
   if (listening) {
@@ -403,15 +558,15 @@ function startListening() {
 
 
 /* =====================================================
-   หยุดฟัง
+   STOP LISTENING
    ===================================================== */
 
 function stopListening() {
 
-  listening = false;
+  listening =
+    false;
 
-  document
-    .getElementById("micButton")
+  micButton
     .classList
     .remove("listening");
 
@@ -419,32 +574,29 @@ function stopListening() {
 
 
 /* =====================================================
-   ปุ่มไมโครโฟน
+   MICROPHONE BUTTON
    ===================================================== */
 
-document
-  .getElementById("micButton")
-  .addEventListener(
-    "click",
-    startListening
-  );
+micButton.addEventListener(
+  "click",
+  startListening
+);
 
 
 /* =====================================================
-   ส่งคำถามไป Google Apps Script
+   GOOGLE APPS SCRIPT
    JSONP
    ===================================================== */
 
 function askAI(question) {
 
   question =
-    String(question || "").trim();
+    String(question || "")
+      .trim();
 
   if (!question) {
 
-    document
-      .getElementById("status")
-      .innerText =
+    statusElement.innerText =
       "กรุณาพิมพ์คำถามก่อนครับ";
 
     return;
@@ -452,15 +604,14 @@ function askAI(question) {
   }
 
 
-  document
-    .getElementById("status")
-    .innerText =
+  clearDebug();
+
+
+  statusElement.innerText =
     "🤖 กำลังวิเคราะห์...";
 
 
-  document
-    .getElementById("answer")
-    .innerText =
+  answerElement.innerText =
     "กำลังอ่านข้อมูลจากสวน...";
 
 
@@ -477,29 +628,37 @@ function askAI(question) {
     document.createElement("script");
 
 
-  let completed = false;
+  let completed =
+    false;
 
 
   window[callbackName] =
     function (result) {
 
       if (completed) {
+
         return;
+
       }
 
-      completed = true;
+      completed =
+        true;
 
 
       if (script.parentNode) {
 
-        script.parentNode.removeChild(
-          script
-        );
+        script
+          .parentNode
+          .removeChild(
+            script
+          );
 
       }
 
 
-      delete window[callbackName];
+      delete window[
+        callbackName
+      ];
 
 
       result =
@@ -508,15 +667,10 @@ function askAI(question) {
 
       if (result.error) {
 
-        document
-          .getElementById("status")
-          .innerText =
+        statusElement.innerText =
           "❌ เกิดข้อผิดพลาด";
 
-
-        document
-          .getElementById("answer")
-          .innerText =
+        answerElement.innerText =
           result.error;
 
         return;
@@ -529,23 +683,13 @@ function askAI(question) {
         "AI ไม่ได้ส่งคำตอบกลับมาครับ";
 
 
-      document
-        .getElementById("answer")
-        .innerText =
+      answerElement.innerText =
         answer;
 
 
-      document
-        .getElementById("status")
-        .innerText =
-        "🔊 กำลังพูดตอบ...";
+      statusElement.innerText =
+        "🔊 กำลังตรวจสอบ VOICEVOX...";
 
-
-      /*
-        สำคัญ:
-        ให้ VOICEVOX อ่านคำตอบจริง
-        จาก Gemini
-      */
 
       speak(answer);
 
@@ -555,9 +699,18 @@ function askAI(question) {
   const url =
     APPS_SCRIPT_URL +
     "?question=" +
-    encodeURIComponent(question) +
+    encodeURIComponent(
+      question
+    ) +
     "&callback=" +
-    encodeURIComponent(callbackName);
+    encodeURIComponent(
+      callbackName
+    );
+
+
+  debugLog(
+    "ส่งคำถามไป Google Apps Script"
+  );
 
 
   script.src =
@@ -568,33 +721,35 @@ function askAI(question) {
     function () {
 
       if (completed) {
+
         return;
+
       }
 
-      completed = true;
+      completed =
+        true;
 
 
-      delete window[callbackName];
+      delete window[
+        callbackName
+      ];
 
 
       if (script.parentNode) {
 
-        script.parentNode.removeChild(
-          script
-        );
+        script
+          .parentNode
+          .removeChild(
+            script
+          );
 
       }
 
 
-      document
-        .getElementById("status")
-        .innerText =
+      statusElement.innerText =
         "❌ เชื่อมต่อ AI ไม่สำเร็จ";
 
-
-      document
-        .getElementById("answer")
-        .innerText =
+      answerElement.innerText =
         "ไม่สามารถเชื่อมต่อระบบ AI ได้ครับ";
 
     };
@@ -608,101 +763,317 @@ function askAI(question) {
 
 
 /* =====================================================
-   VOICEVOX Text → Speech
+   หา VOICEVOX URL ที่ใช้ได้
+   ===================================================== */
+
+async function findVoicevox() {
+
+  debugLog(
+    "เริ่มตรวจสอบ VOICEVOX"
+  );
+
+
+  for (
+    const baseUrl of VOICEVOX_URLS
+  ) {
+
+    debugLog(
+      "กำลังตรวจ",
+      baseUrl
+    );
+
+
+    try {
+
+      const response =
+        await fetch(
+          baseUrl +
+          "/version",
+          {
+            method: "GET",
+
+            cache: "no-store"
+          }
+        );
+
+
+      debugLog(
+        "VOICEVOX /version ตอบกลับ",
+        {
+          url: baseUrl,
+          status: response.status,
+          ok: response.ok
+        }
+      );
+
+
+      if (!response.ok) {
+
+        continue;
+
+      }
+
+
+      const version =
+        await response.text();
+
+
+      debugLog(
+        "VOICEVOX version",
+        version
+      );
+
+
+      return {
+        baseUrl: baseUrl,
+        version: version
+      };
+
+
+    } catch (error) {
+
+      debugLog(
+        "เชื่อมต่อไม่ได้",
+        {
+          url: baseUrl,
+          error:
+            error.message ||
+            String(error)
+        }
+      );
+
+    }
+
+  }
+
+
+  throw new Error(
+    "เบราว์เซอร์ไม่สามารถเชื่อมต่อ VOICEVOX ได้"
+  );
+
+}
+
+
+/* =====================================================
+   ตรวจ SPEAKER ID
+   ===================================================== */
+
+async function checkSpeaker(
+  baseUrl
+) {
+
+  debugLog(
+    "กำลังตรวจ Speaker ID",
+    SPEAKER_ID
+  );
+
+
+  const response =
+    await fetch(
+      baseUrl +
+      "/speakers",
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      "VOICEVOX /speakers HTTP " +
+      response.status
+    );
+
+  }
+
+
+  const speakers =
+    await response.json();
+
+
+  let found =
+    null;
+
+
+  for (
+    const speaker of speakers
+  ) {
+
+    if (
+      !speaker.styles
+    ) {
+
+      continue;
+
+    }
+
+
+    for (
+      const style of speaker.styles
+    ) {
+
+      if (
+        Number(style.id) ===
+        Number(SPEAKER_ID)
+      ) {
+
+        found = {
+          name:
+            speaker.name,
+
+          style:
+            style.name,
+
+          id:
+            style.id
+        };
+
+        break;
+
+      }
+
+    }
+
+
+    if (found) {
+
+      break;
+
+    }
+
+  }
+
+
+  if (!found) {
+
+    throw new Error(
+      "ไม่พบ Speaker ID " +
+      SPEAKER_ID +
+      " ใน VOICEVOX"
+    );
+
+  }
+
+
+  debugLog(
+    "พบ Speaker",
+    found
+  );
+
+
+  return found;
+
+}
+
+
+/* =====================================================
+   VOICEVOX SPEAK
    ===================================================== */
 
 async function speak(text) {
 
   text =
-    String(text || "").trim();
+    String(text || "")
+      .trim();
 
 
   if (!text) {
+
     return;
+
   }
 
 
-  const status =
-    document.getElementById("status");
+  clearDebug();
 
 
-  status.innerText =
+  statusElement.innerText =
     "🎙️ กำลังเชื่อมต่อ VOICEVOX...";
 
 
   try {
 
 
-    console.log(
-      "VOICEVOX เริ่มสร้างเสียง",
-      {
-        url: VOICEVOX_URL,
-        speaker: SPEAKER_ID,
-        text: text
-      }
-    );
-
-
     /* -------------------------------------------------
-       1. ตรวจ VOICEVOX
+       1. หา VOICEVOX
        ------------------------------------------------- */
 
-    const versionResponse =
-      await fetch(
-        VOICEVOX_URL + "/version",
-        {
-          method: "GET"
-        }
-      );
+    const engine =
+      await findVoicevox();
 
 
-    if (!versionResponse.ok) {
-
-      throw new Error(
-        "VOICEVOX /version HTTP " +
-        versionResponse.status
-      );
-
-    }
+    const baseUrl =
+      engine.baseUrl;
 
 
-    const version =
-      await versionResponse.text();
-
-
-    console.log(
-      "VOICEVOX version:",
-      version
-    );
-
-
-    status.innerText =
+    statusElement.innerText =
       "🎙️ VOICEVOX " +
-      version +
+      engine.version +
       " เชื่อมต่อแล้ว";
 
 
     /* -------------------------------------------------
-       2. สร้าง audio_query
+       2. ตรวจ Speaker
        ------------------------------------------------- */
+
+    await checkSpeaker(
+      baseUrl
+    );
+
+
+    /* -------------------------------------------------
+       3. audio_query
+       ------------------------------------------------- */
+
+    debugLog(
+      "กำลังสร้าง audio_query"
+    );
+
+
+    const queryUrl =
+      baseUrl +
+      "/audio_query?speaker=" +
+      encodeURIComponent(
+        SPEAKER_ID
+      ) +
+      "&text=" +
+      encodeURIComponent(
+        text
+      );
+
 
     const queryResponse =
       await fetch(
-        VOICEVOX_URL +
-        "/audio_query?speaker=" +
-        SPEAKER_ID +
-        "&text=" +
-        encodeURIComponent(text),
+        queryUrl,
         {
-          method: "POST"
+          method: "POST",
+
+          cache: "no-store"
         }
       );
 
 
-    if (!queryResponse.ok) {
+    debugLog(
+      "audio_query response",
+      {
+        status:
+          queryResponse.status,
+
+        ok:
+          queryResponse.ok
+      }
+    );
+
+
+    if (
+      !queryResponse.ok
+    ) {
 
       const errorText =
         await queryResponse.text();
+
 
       throw new Error(
         "VOICEVOX audio_query HTTP " +
@@ -719,7 +1090,7 @@ async function speak(text) {
 
 
     /* -------------------------------------------------
-       3. ปรับเสียง
+       4. ปรับเสียง
        ------------------------------------------------- */
 
     query.speedScale =
@@ -736,35 +1107,60 @@ async function speak(text) {
 
 
     /* -------------------------------------------------
-       4. สร้าง WAV
+       5. synthesis
        ------------------------------------------------- */
+
+    debugLog(
+      "กำลังสร้างไฟล์เสียง WAV"
+    );
+
+
+    const synthesisUrl =
+      baseUrl +
+      "/synthesis?speaker=" +
+      encodeURIComponent(
+        SPEAKER_ID
+      );
+
 
     const synthesisResponse =
       await fetch(
-        VOICEVOX_URL +
-        "/synthesis?speaker=" +
-        SPEAKER_ID,
+        synthesisUrl,
         {
           method: "POST",
 
           headers: {
             "Content-Type":
-              "application/json",
-
-            "Accept":
-              "audio/wav"
+              "application/json"
           },
 
           body:
-            JSON.stringify(query)
+            JSON.stringify(
+              query
+            )
         }
       );
 
 
-    if (!synthesisResponse.ok) {
+    debugLog(
+      "synthesis response",
+      {
+        status:
+          synthesisResponse.status,
+
+        ok:
+          synthesisResponse.ok
+      }
+    );
+
+
+    if (
+      !synthesisResponse.ok
+    ) {
 
       const errorText =
         await synthesisResponse.text();
+
 
       throw new Error(
         "VOICEVOX synthesis HTTP " +
@@ -777,11 +1173,23 @@ async function speak(text) {
 
 
     /* -------------------------------------------------
-       5. รับไฟล์เสียง
+       6. WAV
        ------------------------------------------------- */
 
     const audioBlob =
       await synthesisResponse.blob();
+
+
+    debugLog(
+      "ได้รับไฟล์เสียง",
+      {
+        size:
+          audioBlob.size,
+
+        type:
+          audioBlob.type
+      }
+    );
 
 
     if (
@@ -797,7 +1205,7 @@ async function speak(text) {
 
 
     /* -------------------------------------------------
-       6. เล่นเสียง
+       7. เล่นเสียง
        ------------------------------------------------- */
 
     const audioUrl =
@@ -807,14 +1215,16 @@ async function speak(text) {
 
 
     const audio =
-      new Audio(audioUrl);
+      new Audio(
+        audioUrl
+      );
 
 
     audio.volume =
       1.0;
 
 
-    status.innerText =
+    statusElement.innerText =
       "🔊 ずんだもん กำลังพูด...";
 
 
@@ -825,7 +1235,8 @@ async function speak(text) {
           audioUrl
         );
 
-        status.innerText =
+
+        statusElement.innerText =
           "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
 
       };
@@ -838,11 +1249,13 @@ async function speak(text) {
           audioUrl
         );
 
-        status.innerText =
-          "❌ สร้างเสียงสำเร็จ แต่เปิดไฟล์เสียงไม่ได้";
 
-        console.error(
-          "VOICEVOX audio playback error"
+        statusElement.innerText =
+          "❌ ได้ไฟล์เสียงแล้ว แต่เปิดเสียงไม่ได้";
+
+
+        debugLog(
+          "Audio playback error"
         );
 
       };
@@ -867,21 +1280,38 @@ async function speak(text) {
         : String(error);
 
 
-    status.innerText =
-      "❌ VOICEVOX ERROR: " +
-      message;
+    debugLog(
+      "VOICEVOX ERROR",
+      message
+    );
 
 
-    const answer =
-      document.getElementById(
-        "answer"
-      );
+    /*
+      แยกกรณี Failed to fetch
+    */
+
+    if (
+      message ===
+      "Failed to fetch"
+    ) {
+
+      statusElement.innerText =
+        "❌ VOICEVOX ติดต่อจากหน้าเว็บไม่ได้";
 
 
-    if (answer) {
+      answerElement.innerText +=
+        "\n\n[VOICEVOX]\n" +
+        "Failed to fetch\n\n" +
+        "ให้เปิด VOICEVOX → http://127.0.0.1:50021/setting\n" +
+        "แล้วตรวจ Allow Origin ของหน้าเว็บนี้";
 
-      answer.innerText =
-        answer.innerText +
+    } else {
+
+      statusElement.innerText =
+        "❌ VOICEVOX ERROR";
+
+
+      answerElement.innerText +=
         "\n\n[VOICEVOX ERROR]\n" +
         message;
 
@@ -893,33 +1323,48 @@ async function speak(text) {
 
 
 /* =====================================================
-   พิมพ์คำถามแล้วกด Enter
+   ปุ่มทดสอบ VOICEVOX
    ===================================================== */
 
-document
-  .getElementById("question")
-  .addEventListener(
-    "keydown",
-    function (event) {
+voiceTestButton.addEventListener(
+  "click",
+  function () {
 
-      if (
-        event.key === "Enter"
-      ) {
+    speak(
+      "สวัสดีครับ วันนี้เรามาตรวจแตงกวาญี่ปุ่นกันครับ"
+    );
 
-        event.preventDefault();
-
-        askAI(
-          this.value
-        );
-
-      }
-
-    }
-  );
+  }
+);
 
 
 /* =====================================================
-   ทดสอบ VOICEVOX ด้วยการกด F9
+   Enter ส่งคำถาม
+   ===================================================== */
+
+questionElement.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (
+      event.key ===
+      "Enter"
+    ) {
+
+      event.preventDefault();
+
+      askAI(
+        this.value
+      );
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   F9 = ทดสอบ VOICEVOX
    ===================================================== */
 
 document.addEventListener(
@@ -927,7 +1372,8 @@ document.addEventListener(
   function (event) {
 
     if (
-      event.key === "F9"
+      event.key ===
+      "F9"
     ) {
 
       speak(
@@ -943,5 +1389,6 @@ document.addEventListener(
 </script>
 
 </body>
+
 </html>
 ```
