@@ -885,6 +885,25 @@ questionElement.addEventListener("keydown", function (event) {
 
 document.addEventListener("click", unlockAudio);
 
+/* เพลงเล่นเองเมื่อผู้ใช้คลิกครั้งแรก */
+let musicAutoStarted = false;
+function autoStartMusic() {
+  if (musicAutoStarted) return;
+  musicAutoStarted = true;
+  initMusic();
+  if (bgMusic && bgMusic.paused) {
+    bgMusic.play()
+      .then(function () {
+        musicBtn.classList.add("playing");
+        musicBtn.textContent = "🔊";
+        log("เปิดเพลงอัตโนมัติ");
+      })
+      .catch(function () { /* ถ้า browser ยังบล็อก ผู้ใช้กดปุ่ม 🎵 เอง */ });
+  }
+}
+document.addEventListener("click", autoStartMusic);
+document.addEventListener("keydown", autoStartMusic);
+
 log("Cucumber AI พร้อมทำงาน");
 log("โหมดเสียง", { thai: "Server TTS (Apps Script)", japanese: "Browser TTS", english: "Browser TTS" });
 </script>
