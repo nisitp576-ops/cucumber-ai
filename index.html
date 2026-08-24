@@ -13,59 +13,14 @@ body {
   color: #fff;
   overflow-x: hidden;
   min-height: 100vh;
-  background: linear-gradient(180deg,
-    #0d0a2a 0%,
-    #241548 25%,
-    #4a2a6e 50%,
-    #7e4478 72%,
-    #b06a92 88%,
-    #d98aa4 100%);
-}
-
-/* ===== พระจันทร์ ===== */
-.moon {
-  position: fixed;
-  top: 9%; right: 14%;
-  width: 95px; height: 95px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 35%, #fffdf2, #f5e6c8 60%, #e8d3a8);
-  box-shadow:
-    0 0 40px rgba(255,245,210,0.55),
-    0 0 120px rgba(255,235,180,0.3),
-    inset -12px -10px 22px rgba(200,170,130,0.45);
-  z-index: 1;
-  animation: moonFloat 9s ease-in-out infinite;
-}
-@keyframes moonFloat {
-  0%,100% { transform: translateY(0); }
-  50%     { transform: translateY(-10px); }
-}
-/* หลุมจันทร์ */
-.moon::after {
-  content: "";
-  position: absolute; inset: 0;
+  /* ภาพจริง + ชั้นมืดทับให้อ่านง่าย */
   background:
-    radial-gradient(circle at 30% 40%, rgba(190,160,120,0.35) 0 8%, transparent 9%),
-    radial-gradient(circle at 62% 62%, rgba(190,160,120,0.3) 0 11%, transparent 12%),
-    radial-gradient(circle at 55% 28%, rgba(190,160,120,0.25) 0 6%, transparent 7%);
-  border-radius: 50%;
+    linear-gradient(180deg, rgba(15,8,35,0.35), rgba(30,12,50,0.55)),
+    url("bg.webp") center / cover no-repeat fixed;
 }
-
-/* ===== ดาว + ดาวตก (canvas) ===== */
-#sky {
-  position: fixed; inset: 0;
-  z-index: 1; pointer-events: none;
+@media (max-width: 768px) {
+  body { background-attachment: scroll; }
 }
-
-/* ===== ภูเขาไฟฟูจิ + โทริอิ + น้ำ ===== */
-.scene {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 46vh;
-  z-index: 2;
-  pointer-events: none;
-}
-.scene svg { width: 100%; height: 100%; display: block; }
 
 /* ===== โคมไฟลอย ===== */
 .lantern {
@@ -122,7 +77,6 @@ body {
     0 24px 70px rgba(10, 3, 25, 0.65),
     inset 0 1px 0 rgba(255,255,255,0.15);
 }
-/* ขอบ gradient เรืองแสง */
 .card::before {
   content: "";
   position: absolute; inset: 0;
@@ -198,7 +152,7 @@ h1 {
   50%  { transform: scale(1.07); }
   100% { transform: scale(1); }
 }
-.micLabel { margin-top: 10px; color: #f0cfE4; font-size: 14px; letter-spacing: 0.5px; }
+.micLabel { margin-top: 10px; color: #f0cfe4; font-size: 14px; letter-spacing: 0.5px; }
 
 #question {
   width: 100%; margin-top: 24px; padding: 15px 18px;
@@ -241,46 +195,10 @@ h1 {
 @media (max-width: 480px) {
   #micButton { width: 122px; height: 122px; font-size: 44px; }
   .card { padding: 26px 16px; }
-  .moon { width: 70px; height: 70px; right: 8%; }
 }
 </style>
 </head>
 <body>
-
-<div class="moon"></div>
-<canvas id="sky"></canvas>
-
-<!-- ฟูจิ + โทริอิ + น้ำ -->
-<div class="scene">
-  <svg viewBox="0 0 1440 480" preserveAspectRatio="none">
-    <!-- ภูเขาหลัง -->
-    <path d="M0,340 Q240,290 420,330 T800,320 Q1040,285 1240,330 T1440,320 L1440,480 L0,480 Z"
-          fill="#221238" opacity="0.9"/>
-    <!-- ฟูจิ -->
-    <path d="M400,400 L720,80 L1040,400 Z" fill="#33204e"/>
-    <!-- ยอดหิมะ -->
-    <path d="M720,80 L795,185 Q772,168 756,190 Q740,162 720,188 Q700,162 684,190 Q668,168 645,185 Z"
-          fill="#fdeef6"/>
-    <!-- ประตูโทริอิ -->
-    <g opacity="0.95">
-      <rect x="1060" y="300" width="14" height="105" rx="3" fill="#c0392b"/>
-      <rect x="1180" y="300" width="14" height="105" rx="3" fill="#c0392b"/>
-      <rect x="1035" y="292" width="184" height="13" rx="5" fill="#d94f3d"/>
-      <rect x="1048" y="315" width="158" height="9" rx="4" fill="#a93226"/>
-      <circle cx="1127" cy="278" r="16" fill="#ffe9a8"/>
-    </g>
-    <!-- ผิวน้ำ + แสงสะท้อน -->
-    <rect x="0" y="405" width="1440" height="75" fill="#1a0f30"/>
-    <ellipse cx="720" cy="430" rx="260" ry="10" fill="#ff9ec4" opacity="0.18"/>
-    <ellipse cx="720" cy="450" rx="180" ry="7" fill="#ff9ec4" opacity="0.12"/>
-    <ellipse cx="1127" cy="432" rx="90" ry="6" fill="#ffb36b" opacity="0.2"/>
-    <!-- คลื่นแสง -->
-    <path d="M0,415 Q120,410 240,415 T480,415 T720,415 T960,415 T1200,415 T1440,415"
-          stroke="#ff9ec4" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <path d="M0,440 Q120,435 240,440 T480,440 T720,440 T960,440 T1200,440 T1440,440"
-          stroke="#c99ee0" stroke-width="1.5" fill="none" opacity="0.2"/>
-  </svg>
-</div>
 
 <!-- โคมไฟลอย -->
 <div class="lantern" style="left:12%; animation-duration:26s;">
@@ -363,75 +281,6 @@ const answerElement = document.getElementById("answer");
 const questionElement = document.getElementById("question");
 const micButton = document.getElementById("micButton");
 const debugElement = document.getElementById("debug");
-
-/* ================= NIGHT SKY (ดาว + ดาวตก) ================= */
-(function () {
-  const canvas = document.getElementById("sky");
-  const ctx = canvas.getContext("2d");
-  let stars = [], meteors = [];
-
-  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
-  addEventListener("resize", resize); resize();
-
-  for (let i = 0; i < 130; i++) {
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height * 0.6,
-      r: Math.random() * 1.4 + 0.3,
-      tw: Math.random() * Math.PI * 2,
-      speed: 0.01 + Math.random() * 0.03
-    });
-  }
-
-  function spawnMeteor() {
-    if (Math.random() < 0.006 && meteors.length < 2) {
-      meteors.push({
-        x: Math.random() * canvas.width * 0.7 + canvas.width * 0.2,
-        y: Math.random() * canvas.height * 0.25,
-        len: 0, maxLen: 90 + Math.random() * 80,
-        vx: -(4 + Math.random() * 4), vy: 2.5 + Math.random() * 2
-      });
-    }
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // ดาวระยิบ
-    for (const s of stars) {
-      s.tw += s.speed;
-      const a = 0.35 + Math.abs(Math.sin(s.tw)) * 0.65;
-      ctx.globalAlpha = a;
-      ctx.fillStyle = "#fff";
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // ดาวตก
-    spawnMeteor();
-    for (let i = meteors.length - 1; i >= 0; i--) {
-      const m = meteors[i];
-      m.len += 6;
-      m.x += m.vx; m.y += m.vy;
-      const grad = ctx.createLinearGradient(m.x, m.y, m.x + m.vx * m.len / 5, m.y + m.vy * m.len / 5);
-      grad.addColorStop(0, "rgba(255,255,255,0.9)");
-      grad.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(m.x, m.y);
-      ctx.lineTo(m.x - m.vx * m.len / 5, m.y - m.vy * m.len / 5);
-      ctx.stroke();
-      if (m.len > m.maxLen || m.x < -100 || m.y > canvas.height) meteors.splice(i, 1);
-    }
-
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
 
 /* ================= SAKURA PETALS (2 ชั้น depth) ================= */
 (function () {
@@ -701,6 +550,231 @@ function fetchServerTTS(text) {
       if (completed) return;
       completed = true;
       clearTimeout(timer);
-      cleanup
+      cleanup();
+      reject(new Error("เชื่อมต่อ TTS server ไม่ได้"));
+    };
+    document.body.appendChild(script);
+  });
+}
 
-> ⚠️ The response reached the length limit. Reply **continue** to get the rest.
+function playBase64Mp3(base64) {
+  return new Promise(function (resolve, reject) {
+    try {
+      const byteString = atob(base64);
+      const bytes = new Uint8Array(byteString.length);
+      for (let i = 0; i < byteString.length; i++) {
+        bytes[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: "audio/wav" });
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+
+      audio.onended = function () {
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      audio.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("เล่นไฟล์เสียงไม่ได้"));
+      };
+      audio.play().catch(function (e) {
+        URL.revokeObjectURL(url);
+        reject(e);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+async function speakThaiServer(text) {
+  const chunks = splitText(text, 450);
+  if (!chunks.length) return;
+  log("Server Thai TTS", { chunks: chunks.length });
+
+  statusElement.innerText = "🔊 กำลังสร้างเสียงไทย (" + chunks.length + " ส่วน)...";
+
+  const promises = chunks.map(function (chunk, i) {
+    log("TTS request", { part: i + 1, len: chunk.length });
+    return fetchServerTTS(chunk);
+  });
+
+  const results = await Promise.all(promises);
+
+  for (let i = 0; i < results.length; i++) {
+    statusElement.innerText = "🔊 กำลังพูดภาษาไทย " + (i + 1) + "/" + results.length + "...";
+    await playBase64Mp3(results[i]);
+  }
+
+  statusElement.innerText = "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+}
+
+/* ================= MAIN SPEAK ================= */
+async function speak(text) {
+  if (!text || !text.trim()) return;
+  unlockAudio();
+  const language = detectLanguage(text);
+  log("เลือกระบบเสียง", { language: language });
+
+  try {
+    if (language === "th") {
+      try {
+        await speakThaiServer(text);
+        return;
+      } catch (serverError) {
+        log("Server TTS ERROR", serverError.message);
+        loadBrowserVoices();
+        if (thaiVoice) {
+          log("fallback → Browser Thai Voice");
+          await speakBrowser(text, "th");
+          return;
+        }
+        throw serverError;
+      }
+    }
+    if (language === "ja") { await speakBrowser(text, "ja"); return; }
+    if (language === "zh") { await speakBrowser(text, "zh"); return; }
+    if (language === "en") { await speakBrowser(text, "en"); return; }
+    await speakThaiServer(text);
+  } catch (error) {
+    log("ระบบเสียง ERROR", error.message);
+    statusElement.innerText = "❌ ระบบเสียงมีปัญหา";
+    answerElement.innerText += "\n\n[VOICE ERROR]\n" + error.message;
+  }
+}
+
+/* ================= SPEECH RECOGNITION ================= */
+let recognition = null;
+let listening = false;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SpeechRecognition) {
+  statusElement.innerText = "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
+} else {
+  recognition = new SpeechRecognition();
+  recognition.lang = "th-TH";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = function () {
+    listening = true;
+    micButton.classList.add("listening");
+    statusElement.innerText = "🎙️ กำลังฟังครับ...";
+  };
+  recognition.onresult = function (event) {
+    const text = event.results[0][0].transcript;
+    questionElement.value = text;
+    log("รับคำถามจากไมค์", text);
+    stopListening();
+    askAI(text);
+  };
+  recognition.onerror = function (event) {
+    stopListening();
+    let message = "รับเสียงไม่ได้ครับ";
+    if (event.error === "not-allowed") message = "ไม่ได้รับอนุญาตให้ใช้ไมโครโฟนครับ";
+    else if (event.error === "no-speech") message = "ไม่ได้ยินเสียงพูดครับ";
+    else if (event.error === "network") message = "ระบบรับเสียงมีปัญหาเครือข่ายครับ";
+    statusElement.innerText = message;
+  };
+  recognition.onend = function () { stopListening(); };
+}
+
+function startListening() {
+  unlockAudio();
+  if (!recognition) return;
+  if (listening) { recognition.stop(); return; }
+  try { recognition.start(); }
+  catch (error) { log("เริ่มไมค์ ERROR", error.message); }
+}
+function stopListening() {
+  listening = false;
+  micButton.classList.remove("listening");
+}
+
+micButton.addEventListener("click", function () {
+  unlockAudio();
+  startListening();
+});
+
+/* ================= ASK AI (JSONP) ================= */
+function askAI(question) {
+  if (!question || !question.trim()) return;
+  unlockAudio();
+
+  const cleanQuestion = question.trim();
+  log("ส่งคำถาม", cleanQuestion);
+  statusElement.innerText = "🤖 กำลังวิเคราะห์...";
+  answerElement.innerText = "กำลังอ่านข้อมูลจากสวน...";
+
+  const callbackName = "aiCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+  const script = document.createElement("script");
+  let completed = false;
+
+  function cleanupScript() {
+    delete window[callbackName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[callbackName] = function (result) {
+    if (completed) return;
+    completed = true;
+    cleanupScript();
+
+    if (!result) {
+      statusElement.innerText = "❌ AI ไม่ส่งข้อมูลกลับมา";
+      answerElement.innerText = "ไม่ได้รับคำตอบจาก AI";
+      return;
+    }
+    if (result.error) {
+      statusElement.innerText = "❌ เกิดข้อผิดพลาด";
+      answerElement.innerText = result.error;
+      return;
+    }
+
+    const answer = result.answer || "AI ไม่ได้ส่งคำตอบกลับมาครับ";
+    answerElement.innerText = answer;
+    unlockAudio();
+    speak(answer);
+  };
+
+  script.src = APPS_SCRIPT_URL +
+    "?action=ask&question=" + encodeURIComponent(cleanQuestion) +
+    "&callback=" + encodeURIComponent(callbackName);
+
+  script.onerror = function () {
+    if (completed) return;
+    completed = true;
+    cleanupScript();
+    statusElement.innerText = "❌ เชื่อมต่อ AI ไม่สำเร็จ";
+    answerElement.innerText = "ไม่สามารถเชื่อมต่อระบบ AI ได้ครับ";
+  };
+
+  document.body.appendChild(script);
+
+  setTimeout(function () {
+    if (completed) return;
+    completed = true;
+    cleanupScript();
+    statusElement.innerText = "❌ AI ตอบช้าเกินไป";
+    answerElement.innerText = "หมดเวลารับคำตอบ (timeout)";
+  }, AI_TIMEOUT_MS);
+}
+
+/* ================= EVENTS ================= */
+questionElement.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    unlockAudio();
+    askAI(this.value);
+  }
+});
+
+document.addEventListener("click", unlockAudio);
+
+log("Cucumber AI พร้อมทำงาน");
+log("โหมดเสียง", { thai: "Server TTS (Apps Script)", japanese: "Browser TTS", english: "Browser TTS" });
+</script>
+</body>
+</html>
