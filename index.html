@@ -895,10 +895,9 @@ function askAI(question) {
     }
 
     const answer = result.answer || "AI ไม่ได้ส่งคำตอบกลับมาครับ";
-    answerElement.innerText = answer;
+    typeWriter(answerElement, answer);
     unlockAudio();
     speak(answer);
-    setMood("happy");
   };
 
   script.src = APPS_SCRIPT_URL +
@@ -944,6 +943,27 @@ function setMood(mood) {
     mascot.classList.add(mood);
   }
 }  
+
+/* ================= TYPEWRITER ================= */
+let typeTimer = null;
+function typeWriter(element, text, speed = 28) {
+  if (typeTimer) clearInterval(typeTimer);
+  element.innerText = "";
+  let i = 0;
+  typeTimer = setInterval(function () {
+    element.innerText += text[i];
+    i++;
+    if (i >= text.length) {
+      clearInterval(typeTimer);
+      typeTimer = null;
+      onTypeDone();
+    }
+  }, speed);
+}  
+
+ function onTypeDone() {
+  setMood("happy");
+}
   
 document.addEventListener("click", unlockAudio);
 
