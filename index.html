@@ -70,7 +70,7 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxuuetkVQLCHCr0
 const VOICEVOX_URL = "http://127.0.0.1:50021";
 const VOICEVOX_SPEAKER_ID = 7;
 const AI_TIMEOUT_MS = 25000;
-const TTS_TIMEOUT_MS = 20000;
+const TTS_TIMEOUT_MS = 60000;   // FIX: Gemini TTS ช้า → เพิ่มจาก 20s เป็น 60s
 
 /* ================= ELEMENTS ================= */
 const statusElement = document.getElementById("status");
@@ -159,7 +159,7 @@ function splitSentences(clean) {
 }
 
 function splitText(text, maxLength) {
-  maxLength = maxLength || 200;
+  maxLength = maxLength || 450;   // FIX: เพิ่มจาก 200 → 450 (ลดจำนวน chunks)
   const clean = String(text || "").replace(/\s+/g, " ").trim();
   if (clean.length <= maxLength) return [clean];
   const result = [];
@@ -240,10 +240,7 @@ function speakBrowser(text, language) {
   });
 }
 
-/* ================= SERVER TTS (ผ่าน Apps Script)
-   FIX: browser โดน block จากทุก TTS ภายนอก
-   → ให้ Apps Script (server) เรียกแทน แล้วส่งเสียง base64 กลับมา
-   ============================================================ */
+/* ================= SERVER TTS (ผ่าน Apps Script) ============ */
 
 function fetchServerTTS(text) {
   return new Promise(function (resolve, reject) {
@@ -298,8 +295,7 @@ function playBase64Mp3(base64) {
       for (let i = 0; i < byteString.length; i++) {
         bytes[i] = byteString.charCodeAt(i);
       }
-      const blob = new Blob([bytes], { type: "audio/wav"
- });
+      const blob = new Blob([bytes], { type: "audio/wav" });
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audio.volume = 1.0;
@@ -323,7 +319,7 @@ function playBase64Mp3(base64) {
 }
 
 async function speakThaiServer(text) {
-  const chunks = splitText(text, 200);
+  const chunks = splitText(text, 450);   // FIX: 450 ตัวอักษร/chunk
   if (!chunks.length) return;
   log("Server Thai TTS", { chunks: chunks.length });
 
