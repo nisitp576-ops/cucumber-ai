@@ -727,6 +727,166 @@ async function speak(text) {
   if (!text || !text.trim()) return;
   unlockAudio();
   const language = detectLanguage(text);
-  log("เลือกระบบเสียง",
+  log("เลือกระบบเสียง", { language: language });
 
-> ⚠️ The response reached the length limit. Reply **continue** to get the rest.
+  try {
+    if (language === "th") {
+      try {
+        await speakThaiServer(text);
+        return;
+      } catch (serverError) {
+        log("Server TTS ERROR", serverError.message);
+        loadBrowserVoices();
+        if (thaiVoice) {
+          log("fallback → Browser Thai Voice");
+          await speakBrowser(text, "th");
+          return;
+        }
+        throw serverError;
+      }
+    }
+    if (language === "ja") { await speakBrowser(text, "ja"); return; }
+    if (language === "zh") { await speakBrowser(text, "zh"); return; }
+    if (language === "en") { await speakBrowser(text, "en"); return; }
+    await speakThaiServer(text);
+  } catch (error) {
+    log("ระบบเสียง ERROR", error.message);
+    statusElement.innerText = "❌ ระบบเสียงมีปัญหา";
+    answerElement.innerText += "\n\n[VOICE ERROR]\n" + error.message;
+  }
+}
+
+/* ================= SPEECH RECOGNITION ================= */
+let recognition = null;
+let listening = false;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SpeechRecognition) {
+  statusElement.innerText = "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
+} else {
+  recognition = new SpeechRecognition();
+  recognition.lang = "th-TH";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = function () {
+    listening = true;
+    micButton.classList.add("listening");
+    statusElement.innerText = "🎙️ กำลังฟังครับ...";
+  };
+  recognition.onresult = function (event) {
+    const text = event.results[0][0].transcript;
+    questionElement.value = text;
+    log("รับคำถามจากไมค์", text);
+    stopListening();
+    askAI(text);
+  };
+  recognition.onerror = function (event) {
+    stopListening();
+    let message = "รับเสียงไม่ได้ครับ";
+    if (event.error === "not-allowed") message = "ไม่ได้รับอนุญาตให้ใช้ไมโครโฟนครับ";
+    else if (event.error === "no-speech") message = "ไม่ได้ยินเสียงพูดครับ";
+    else if (event.error === "network") message = "ระบบรับเสียงมีปัญหาเครือข่ายครับ";
+    statusElement.innerText = message;
+  };
+  recognition.onend = function () { stopListening(); };
+}
+
+function startListening() {
+  unlockAudio();
+  if (!recognition) return;
+  if (listening) { recognition.stop(); return; }
+  try { recognition.start(); }
+  catch (error) { log("เริ่มไมค์ ERROR", error.message); }
+}
+function stopListening() {
+  listening = false;
+  micButton.classList.remove("listening");
+}
+
+micButton.addEventListener("click", function () {
+  unlockAudio();
+  startListening();
+});
+
+/* ================= ASK AI (JSONP) ================= */
+function askAI(question) {
+  if (!question || !question.trim()) return;
+  unlockAudio();
+
+  const cleanQuestion = question.trim();
+  log("ส่งคำถาม", cleanQuestion);
+  statusElement.innerText = "🤖 กำลังวิเคราะห์...";
+  answerElement.innerText = "กำลังอ่านข้อมูลจากสวน...";
+
+  const callbackName = "aiCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+  const script = document.createElement("script");
+  let completed = false;
+
+  function cleanupScript() {
+    delete window[callbackName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[callbackName] = function (result) {
+    if (completed) return;
+    completed = true;
+    cleanupScript();
+
+    if (!result) {
+      statusElement.innerText = "❌ AI ไม่ส่งข้อมูลกลับมา";
+      answerElement.innerText = "ไม่ได้รับคำตอบจาก AI";
+      return;
+    }
+    if (result.error) {
+      statusElement.innerText = "❌ เกิดข้อผิดพลาด";
+      answerElement.innerText = result.error;
+      return;
+    }
+
+    const answer = result.answer || "AI ไม่ได้ส่งคำตอบกลับมาครับ";
+    answerElement.innerText = answer;
+    unlockAudio();
+    speak(answer);
+  };
+
+  script.src = APPS_SCRIPT_URL +
+    "?action=ask&question=" + encodeURIComponent(cleanQuestion) +
+    "&callback=" + encodeURIComponent(callbackName);
+
+  script.onerror = function () {
+    if (completed) return;
+    completed = true;
+    cleanupScript();
+    statusElement.innerText = "❌ เชื่อมต่อ AI ไม่สำเร็จ";
+    answerElement.innerText = "ไม่สามารถเชื่อมต่อระบบ AI ได้ครับ";
+  };
+
+  document.body.appendChild(script);
+
+  setTimeout(function () {
+    if (completed) return;
+    completed = true;
+    cleanupScript();
+    statusElement.innerText = "❌ AI ตอบช้าเกินไป";
+    answerElement.innerText = "หมดเวลารับคำตอบ (timeout)";
+  }, AI_TIMEOUT_MS);
+}
+
+/* ================= EVENTS ================= */
+questionElement.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    unlockAudio();
+    askAI(this.value);
+  }
+});
+
+document.addEventListener("click", unlockAudio);
+
+log("Cucumber AI พร้อมทำงาน");
+log("โหมดเสียง", { thai: "Server TTS (Apps Script)", japanese: "Browser TTS", english: "Browser TTS" });
+</script>
+</body>
+</html>
