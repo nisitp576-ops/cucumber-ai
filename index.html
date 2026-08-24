@@ -282,14 +282,15 @@ h1 {
   pointer-events: none;
   opacity: 0;
   transition: opacity 2s ease;
-  background:
-    linear-gradient(180deg,
-      rgba(255,235,200,0.35),
-      rgba(255,220,190,0.15) 50%,
-      rgba(255,245,220,0.25));
-}
 body.day #dayOverlay { opacity: 1; }
-
+body.day {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.15), rgba(200,230,255,0.25)),
+    url("bg-day.jpg") center / cover no-repeat fixed;
+}
+@media (max-width: 768px) {
+  body.day { background-attachment: scroll; }
+}
 body.day .card {
   background: rgba(255, 250, 245, 0.55);
 }
