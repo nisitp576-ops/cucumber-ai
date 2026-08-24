@@ -1,306 +1,145 @@
+```html
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cucumber AI</title>
 
 <style>
-
 * {
   box-sizing: border-box;
 }
 
 body {
-
   margin: 0;
-
   min-height: 100vh;
-
   background:
-    radial-gradient(
-      circle at top,
-      #1b2630 0%,
-      #0f1115 45%,
-      #090a0c 100%
-    );
-
+    radial-gradient(circle at top, #1b2630 0%, #0f1115 45%, #090a0c 100%);
   color: white;
-
-  font-family:
-    Arial,
-    sans-serif;
-
+  font-family: Arial, sans-serif;
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
 }
 
 .app {
-
   width: 100%;
-
   max-width: 650px;
-
-  padding:
-    30px
-    20px
-    40px;
-
+  padding: 30px 20px 40px;
   text-align: center;
-
 }
 
 .robot {
-
   font-size: 70px;
-
   margin-bottom: 5px;
-
 }
 
 h1 {
-
   margin: 0;
-
   font-size: 30px;
-
   font-weight: 600;
-
 }
 
 #status {
-
-  margin:
-    18px
-    0
-    25px;
-
+  margin: 18px 0 25px;
   color: #aaa;
-
   min-height: 25px;
-
 }
 
 #micButton {
-
   width: 180px;
-
   height: 180px;
-
   border-radius: 50%;
-
   border: none;
-
   background: #20252b;
-
   color: white;
-
   font-size: 70px;
-
   cursor: pointer;
-
   transition: 0.2s;
-
-  box-shadow:
-    0 0 35px
-    rgba(
-      255,
-      255,
-      255,
-      0.12
-    );
-
+  box-shadow: 0 0 35px rgba(255,255,255,0.12);
 }
 
 #micButton:active {
-
-  transform:
-    scale(0.94);
-
+  transform: scale(0.94);
 }
 
 #micButton.listening {
-
-  background:
-    #b71c1c;
-
-  box-shadow:
-    0 0 60px
-    rgba(
-      244,
-      67,
-      54,
-      0.65
-    );
-
-  animation:
-    pulse
-    1.1s
-    infinite;
-
+  background: #b71c1c;
+  box-shadow: 0 0 60px rgba(244,67,54,0.65);
+  animation: pulse 1.1s infinite;
 }
 
 @keyframes pulse {
-
-  0% {
-    transform:
-      scale(1);
-  }
-
-  50% {
-    transform:
-      scale(1.06);
-  }
-
-  100% {
-    transform:
-      scale(1);
-  }
-
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
 }
 
 #question {
-
   width: 100%;
-
   margin-top: 30px;
-
   padding: 15px;
-
   border-radius: 12px;
-
-  border:
-    1px solid
-    #333;
-
-  background:
-    #191c20;
-
+  border: 1px solid #333;
+  background: #191c20;
   color: white;
-
   font-size: 18px;
-
   outline: none;
-
 }
 
 #question::placeholder {
-
   color: #777;
-
 }
 
 #answer {
-
   margin-top: 25px;
-
   padding: 20px;
-
   border-radius: 15px;
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.06
-    );
-
+  background: rgba(255,255,255,0.06);
   text-align: left;
-
   line-height: 1.7;
-
   font-size: 18px;
-
   min-height: 100px;
-
   white-space: pre-wrap;
-
 }
 
 .hint {
-
   margin-top: 20px;
-
   color: #666;
-
   font-size: 14px;
-
 }
 
 #debug {
-
   margin-top: 25px;
-
   padding: 15px;
-
   border-radius: 12px;
-
-  background:
-    rgba(
-      0,
-      0,
-      0,
-      0.45
-    );
-
+  background: rgba(0,0,0,0.45);
   color: #888;
-
   text-align: left;
-
-  font-family:
-    Consolas,
-    monospace;
-
+  font-family: Consolas, monospace;
   font-size: 12px;
-
   line-height: 1.5;
-
-  max-height: 220px;
-
+  max-height: 260px;
   overflow-y: auto;
-
   white-space: pre-wrap;
-
 }
-
 </style>
-
 </head>
 
 <body>
 
 <div class="app">
 
-  <div class="robot">
-    🤖
-  </div>
+  <div class="robot">🤖</div>
 
-  <h1>
-    Cucumber AI
-  </h1>
+  <h1>Cucumber AI</h1>
 
   <div id="status">
     ระบบพร้อมทำงาน
   </div>
 
-  <button
-    id="micButton"
-    type="button"
-  >
-    🎙️
-  </button>
+  <button id="micButton" type="button">🎙️</button>
 
   <input
     id="question"
@@ -321,181 +160,100 @@ h1 {
 
 </div>
 
-
 <script>
-
 
 /* =====================================================
    CONFIG
-   ===================================================== */
+===================================================== */
 
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxuuetkVQLCHCr0IF2RF_1o11jXsW9jaORL6UvoLV1g_d2x35k8wZoeIpai-nFpiHbv/exec";
 
-
 const VOICEVOX_URL =
   "http://127.0.0.1:50021";
 
-
-const VOICEVOX_SPEAKER_ID =
-  7;
-
-
-/*
-   Google Translate TTS
-
-   รอบนี้ใช้ Audio URL โดยตรง
-   ไม่ fetch()
-   ไม่สร้าง Blob
-   เพื่อหลีกเลี่ยงปัญหา CORS
-*/
-
-const GOOGLE_TTS_URL =
-  "https://translate.google.com/translate_tts";
-
-
-/*
-   จำกัดความยาวแต่ละช่วง
-   เพื่อให้ Google TTS รับข้อความได้เสถียร
-*/
-
-const THAI_CHUNK_LENGTH =
-  180;
+const VOICEVOX_SPEAKER_ID = 7;
 
 
 /* =====================================================
    ELEMENTS
-   ===================================================== */
+===================================================== */
 
 const statusElement =
-  document.getElementById(
-    "status"
-  );
-
+  document.getElementById("status");
 
 const answerElement =
-  document.getElementById(
-    "answer"
-  );
-
+  document.getElementById("answer");
 
 const questionElement =
-  document.getElementById(
-    "question"
-  );
-
+  document.getElementById("question");
 
 const micButton =
-  document.getElementById(
-    "micButton"
-  );
-
+  document.getElementById("micButton");
 
 const debugElement =
-  document.getElementById(
-    "debug"
-  );
+  document.getElementById("debug");
 
 
 /* =====================================================
    DEBUG
-   ===================================================== */
+===================================================== */
 
-function log(
-  message,
-  data
-) {
+function log(message, data) {
 
   const time =
-    new Date()
-      .toLocaleTimeString(
-        "th-TH",
-        {
-          hour12: false
-        }
-      );
-
+    new Date().toLocaleTimeString("th-TH", {
+      hour12: false
+    });
 
   let line =
-    "[" +
-    time +
-    "] " +
-    message;
+    "[" + time + "] " + message;
 
-
-  if (
-    data !== undefined
-  ) {
+  if (data !== undefined) {
 
     try {
-
       line +=
         " | " +
-        JSON.stringify(
-          data,
-          null,
-          2
-        );
-
+        JSON.stringify(data, null, 2);
     }
 
-    catch (
-      error
-    ) {
-
+    catch {
       line +=
         " | " +
         String(data);
-
     }
-
   }
 
-
-  console.log(
-    line
-  );
-
+  console.log(line);
 
   debugElement.textContent +=
-    line +
-    "\n";
-
+    line + "\n";
 
   debugElement.scrollTop =
     debugElement.scrollHeight;
-
 }
 
 
 /* =====================================================
    AUDIO CONTEXT
-   ===================================================== */
+===================================================== */
 
-let audioContext =
-  null;
-
+let audioContext = null;
 
 function unlockAudio() {
 
   try {
 
-    if (
-      !audioContext
-    ) {
+    if (!audioContext) {
 
       const AudioContextClass =
         window.AudioContext ||
         window.webkitAudioContext;
 
-
-      if (
-        AudioContextClass
-      ) {
+      if (AudioContextClass) {
 
         audioContext =
           new AudioContextClass();
-
 
         log(
           "สร้าง AudioContext",
@@ -504,93 +262,107 @@ function unlockAudio() {
               audioContext.state
           }
         );
-
       }
-
     }
-
 
     if (
       audioContext &&
-      audioContext.state ===
-      "suspended"
+      audioContext.state === "suspended"
     ) {
 
       audioContext.resume();
 
     }
 
+    if ("speechSynthesis" in window) {
 
-    log(
-      "ปลดล็อกระบบเสียงแล้ว"
-    );
+      window.speechSynthesis.resume();
+
+    }
+
+    log("ปลดล็อกระบบเสียงแล้ว");
 
   }
 
-  catch (
-    error
-  ) {
+  catch (error) {
 
     log(
-      "ปลดล็อกเสียงไม่สำเร็จ",
+      "ปลดล็อกเสียง ERROR",
       error.message
     );
 
   }
-
 }
 
 
 /* =====================================================
    BROWSER VOICES
-   ใช้เฉพาะภาษาอังกฤษ
-   ===================================================== */
+===================================================== */
 
-let englishVoice =
-  null;
-
+let browserVoices = [];
+let thaiVoice = null;
+let englishVoice = null;
 
 function loadBrowserVoices() {
 
-  if (
-    !(
-      "speechSynthesis"
-      in window
-    )
-  ) {
+  if (!("speechSynthesis" in window)) {
 
     log(
-      "Browser ไม่มี speechSynthesis"
+      "Browser ไม่รองรับ speechSynthesis"
     );
 
     return;
 
   }
 
+  browserVoices =
+    window.speechSynthesis.getVoices();
 
-  const voices =
-    window.speechSynthesis
-      .getVoices();
+  thaiVoice =
+    browserVoices.find(function(voice) {
 
+      const lang =
+        String(voice.lang || "")
+          .toLowerCase();
+
+      return (
+        lang === "th-th" ||
+        lang.startsWith("th-") ||
+        lang === "th"
+      );
+
+    }) || null;
 
   englishVoice =
-    voices.find(
-      function(voice) {
+    browserVoices.find(function(voice) {
 
-        return (
-          voice.lang &&
-          voice.lang
-            .toLowerCase()
-            .startsWith("en")
-        );
+      const lang =
+        String(voice.lang || "")
+          .toLowerCase();
 
-      }
-    ) || null;
+      return (
+        lang === "en-us" ||
+        lang.startsWith("en-")
+      );
+
+    }) || null;
 
 
   log(
     "ตรวจ Browser Voices",
-    voices.length
+    browserVoices.length
+  );
+
+
+  log(
+    "Thai Voice",
+    thaiVoice
+      ? {
+          name: thaiVoice.name,
+          lang: thaiVoice.lang,
+          localService: thaiVoice.localService
+        }
+      : "ไม่พบ"
   );
 
 
@@ -598,92 +370,67 @@ function loadBrowserVoices() {
     "English Voice",
     englishVoice
       ? {
-          name:
-            englishVoice.name,
-          lang:
-            englishVoice.lang,
-          localService:
-            englishVoice.localService
+          name: englishVoice.name,
+          lang: englishVoice.lang,
+          localService: englishVoice.localService
         }
       : "ไม่พบ"
   );
-
 }
 
 
-if (
-  "speechSynthesis"
-  in window
-) {
+if ("speechSynthesis" in window) {
 
   loadBrowserVoices();
 
-
-  window.speechSynthesis
-    .onvoiceschanged =
+  window.speechSynthesis.onvoiceschanged =
     function() {
 
-      log(
-        "Browser voices เปลี่ยนแปลง"
-      );
+      log("Browser voices เปลี่ยนแปลง");
 
       loadBrowserVoices();
 
     };
-
 }
 
 
 /* =====================================================
-   ตรวจภาษา
-   ===================================================== */
+   DETECT LANGUAGE
+===================================================== */
 
-function detectLanguage(
-  text
-) {
+function detectLanguage(text) {
 
   const value =
-    String(
-      text || ""
-    ).trim();
-
+    String(text || "").trim();
 
   if (!value) {
-
     return "unknown";
-
   }
-
 
   const japaneseMatches =
     value.match(
       /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/g
     );
 
-
   const thaiMatches =
     value.match(
       /[\u0E00-\u0E7F]/g
     );
-
 
   const englishMatches =
     value.match(
       /[A-Za-z]/g
     );
 
-
   const japaneseCount =
     japaneseMatches
       ? japaneseMatches.length
       : 0;
 
-
   const thaiCount =
     thaiMatches
       ? thaiMatches.length
       : 0;
-
 
   const englishCount =
     englishMatches
@@ -694,481 +441,649 @@ function detectLanguage(
   log(
     "ตรวจภาษา",
     {
-      thai:
-        thaiCount,
-      japanese:
-        japaneseCount,
-      english:
-        englishCount
+      thai: thaiCount,
+      japanese: japaneseCount,
+      english: englishCount
     }
   );
 
 
   if (
-    japaneseCount >
-    thaiCount &&
-    japaneseCount >
-    englishCount
+    japaneseCount > thaiCount &&
+    japaneseCount > englishCount
   ) {
-
     return "ja";
-
   }
 
 
   if (
-    thaiCount >=
-    japaneseCount &&
-    thaiCount >=
-    englishCount
+    thaiCount >= japaneseCount &&
+    thaiCount >= englishCount
   ) {
-
     return "th";
-
   }
 
 
-  if (
-    englishCount > 0
-  ) {
-
+  if (englishCount > 0) {
     return "en";
-
   }
 
 
   return "th";
-
 }
 
 
 /* =====================================================
-   แบ่งข้อความไทย
-   ===================================================== */
+   BROWSER TTS
+===================================================== */
 
-function splitThaiText(
-  text
-) {
+function speakBrowser(text, language) {
+
+  return new Promise(function(resolve, reject) {
+
+    if (!("speechSynthesis" in window)) {
+
+      reject(
+        new Error(
+          "เบราว์เซอร์ไม่รองรับ Speech Synthesis"
+        )
+      );
+
+      return;
+    }
+
+
+    if (!text || !text.trim()) {
+
+      resolve();
+
+      return;
+    }
+
+
+    loadBrowserVoices();
+
+    window.speechSynthesis.cancel();
+
+
+    let selectedVoice = null;
+
+
+    if (language === "th") {
+
+      selectedVoice = thaiVoice;
+
+      if (!selectedVoice) {
+
+        reject(
+          new Error(
+            "ไม่มี Thai Voice ในเบราว์เซอร์"
+          )
+        );
+
+        return;
+      }
+    }
+
+
+    if (language === "en") {
+
+      selectedVoice = englishVoice;
+
+      if (!selectedVoice) {
+
+        reject(
+          new Error(
+            "ไม่มี English Voice ในเบราว์เซอร์"
+          )
+        );
+
+        return;
+      }
+    }
+
+
+    const utterance =
+      new SpeechSynthesisUtterance(text);
+
+
+    utterance.voice =
+      selectedVoice;
+
+
+    utterance.lang =
+      language === "th"
+        ? "th-TH"
+        : "en-US";
+
+
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+
+    utterance.onstart =
+      function() {
+
+        log(
+          "Browser TTS เริ่มพูด",
+          {
+            language: language,
+            voice: selectedVoice.name,
+            voiceLang: selectedVoice.lang
+          }
+        );
+
+        statusElement.innerText =
+          "🔊 กำลังพูด...";
+
+      };
+
+
+    utterance.onend =
+      function() {
+
+        log(
+          "Browser TTS พูดเสร็จแล้ว"
+        );
+
+        statusElement.innerText =
+          "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+
+        resolve();
+
+      };
+
+
+    utterance.onerror =
+      function(event) {
+
+        log(
+          "Browser TTS ERROR",
+          {
+            error:
+              event.error,
+            voice:
+              selectedVoice
+                ? selectedVoice.name
+                : null
+          }
+        );
+
+        reject(
+          new Error(
+            "Browser TTS: " +
+            event.error
+          )
+        );
+
+      };
+
+
+    try {
+
+      window.speechSynthesis.speak(
+        utterance
+      );
+
+    }
+
+    catch (error) {
+
+      reject(error);
+
+    }
+
+  });
+}
+
+
+/* =====================================================
+   GOOGLE THAI TTS
+   ใช้เป็นตัวสำรองเมื่อไม่มี Thai Voice
+===================================================== */
+
+function splitThaiText(text, maxLength = 180) {
 
   const clean =
-    String(
-      text || ""
-    )
-      .replace(
-        /\r/g,
-        ""
-      )
-      .replace(
-        /\n+/g,
-        " "
-      )
-      .replace(
-        /\s+/g,
-        " "
-      )
+    String(text || "")
+      .replace(/\s+/g, " ")
       .trim();
 
-
-  if (
-    clean.length <=
-    THAI_CHUNK_LENGTH
-  ) {
-
-    return [
-      clean
-    ];
-
+  if (!clean) {
+    return [];
   }
+
+
+  const sentences =
+    clean.split(
+      /(?<=[.!?。！？\n])/u
+    );
 
 
   const chunks = [];
 
-  let remaining =
-    clean;
+  let current = "";
 
 
-  while (
-    remaining.length >
-    THAI_CHUNK_LENGTH
-  ) {
+  for (const sentence of sentences) {
 
-    let cut =
-      THAI_CHUNK_LENGTH;
+    const part =
+      sentence.trim();
 
-
-    /*
-       พยายามตัดตรงเครื่องหมายวรรคตอน
-    */
-
-    const punctuationPositions = [
-
-      remaining.lastIndexOf(
-        "。",
-        THAI_CHUNK_LENGTH
-      ),
-
-      remaining.lastIndexOf(
-        "!",
-        THAI_CHUNK_LENGTH
-      ),
-
-      remaining.lastIndexOf(
-        "?",
-        THAI_CHUNK_LENGTH
-      ),
-
-      remaining.lastIndexOf(
-        " ",
-        THAI_CHUNK_LENGTH
-      )
-
-    ];
-
-
-    for (
-      const position
-      of punctuationPositions
-    ) {
-
-      if (
-        position >
-        50
-      ) {
-
-        cut =
-          position + 1;
-
-        break;
-
-      }
-
+    if (!part) {
+      continue;
     }
 
 
-    chunks.push(
-      remaining
-        .slice(
-          0,
-          cut
-        )
-        .trim()
-    );
+    if (
+      (current + " " + part).trim().length
+      <= maxLength
+    ) {
 
+      current =
+        (current + " " + part).trim();
 
-    remaining =
-      remaining
-        .slice(
-          cut
-        )
-        .trim();
+    }
 
+    else {
+
+      if (current) {
+        chunks.push(current);
+      }
+
+      if (part.length <= maxLength) {
+
+        current = part;
+
+      }
+
+      else {
+
+        for (
+          let i = 0;
+          i < part.length;
+          i += maxLength
+        ) {
+
+          chunks.push(
+            part.substring(
+              i,
+              i + maxLength
+            )
+          );
+        }
+
+        current = "";
+      }
+    }
   }
 
 
-  if (
-    remaining
-  ) {
-
-    chunks.push(
-      remaining
-    );
-
+  if (current) {
+    chunks.push(current);
   }
 
 
   return chunks;
-
 }
 
 
 /* =====================================================
-   Google Thai TTS
-   สำคัญ:
-   ใช้ Audio URL โดยตรง
-   ไม่ fetch Blob
-   ===================================================== */
-
-function playGoogleThaiChunk(
-  text,
-  index,
-  total
-) {
-
-  return new Promise(
-    function(
-      resolve,
-      reject
-    ) {
-
-      if (
-        !text ||
-        !text.trim()
-      ) {
-
-        resolve();
-
-        return;
-
-      }
-
-
-      const url =
-        GOOGLE_TTS_URL +
-        "?ie=UTF-8" +
-        "&client=tw-ob" +
-        "&tl=th" +
-        "&q=" +
-        encodeURIComponent(
-          text
-        );
-
-
-      log(
-        "สร้างเสียงไทย",
-        {
-          part:
-            index +
-            "/" +
-            total,
-          length:
-            text.length
-        }
-      );
-
-
-      statusElement.innerText =
-        "🔊 กำลังพูดภาษาไทย " +
-        index +
-        "/" +
-        total;
-
-
-      /*
-         สร้าง Audio ใหม่ทุกช่วง
-         เพื่อป้องกัน audio ตัวเก่าค้าง
-      */
-
-      const audio =
-        new Audio();
-
-
-      audio.preload =
-        "auto";
-
-
-      audio.volume =
-        1.0;
-
-
-      let finished =
-        false;
-
-
-      const cleanup =
-        function() {
-
-          audio.pause();
-
-          audio.removeAttribute(
-            "src"
-          );
-
-          audio.load();
-
-        };
-
-
-      const success =
-        function() {
-
-          if (
-            finished
-          ) {
-
-            return;
-
-          }
-
-
-          finished =
-            true;
-
-
-          cleanup();
-
-
-          log(
-            "Thai TTS เล่นเสร็จ",
-            {
-              part:
-                index +
-                "/" +
-                total
-            }
-          );
-
-
-          resolve();
-
-        };
-
-
-      const failure =
-        function(error) {
-
-          if (
-            finished
-          ) {
-
-            return;
-
-          }
-
-
-          finished =
-            true;
-
-
-          cleanup();
-
-
-          log(
-            "Thai TTS เล่น ERROR",
-            {
-              part:
-                index +
-                "/" +
-                total,
-              error:
-                error &&
-                error.message
-                  ? error.message
-                  : String(error)
-            }
-          );
-
-
-          reject(
-            new Error(
-              "Google Thai TTS ไม่สามารถเล่นเสียงช่วงที่ " +
-              index +
-              "/" +
-              total
-            )
-          );
-
-        };
-
-
-      audio.onended =
-        success;
-
-
-      audio.onerror =
-        function() {
-
-          failure(
-            new Error(
-              "HTML Audio error"
-            )
-          );
-
-        };
-
-
-      audio.onplay =
-        function() {
-
-          log(
-            "Thai TTS เริ่มเล่น",
-            {
-              part:
-                index +
-                "/" +
-                total
-            }
-          );
-
-        };
-
-
-      audio.src =
-        url;
-
-
-      audio.load();
-
-
-      /*
-         เริ่มเล่นโดยตรง
-      */
-
-      audio.play()
-        .then(
-          function() {
-
-            log(
-              "audio.play() Thai TTS สำเร็จ",
-              {
-                part:
-                  index +
-                  "/" +
-                  total,
-                paused:
-                  audio.paused,
-                volume:
-                  audio.volume
-              }
-            );
-
-          }
-        )
-        .catch(
-          function(error) {
-
-            failure(
-              error
-            );
-
-          }
-        );
-
-    }
+   GOOGLE TTS URL
+===================================================== */
+
+function createGoogleThaiTTSUrl(text) {
+
+  return (
+    "https://translate.google.com/translate_tts" +
+    "?ie=UTF-8" +
+    "&client=tw-ob" +
+    "&tl=th" +
+    "&q=" +
+    encodeURIComponent(text) +
+    "&_=" +
+    Date.now()
   );
 
 }
 
 
 /* =====================================================
-   พูดภาษาไทย
-   ===================================================== */
+   ตรวจว่า Audio โหลดได้จริง
+===================================================== */
 
-async function speakThai(
-  text
+function testAudioUrl(url) {
+
+  return new Promise(function(resolve, reject) {
+
+    const audio =
+      new Audio();
+
+    let finished = false;
+
+
+    const cleanup =
+      function() {
+
+        audio.onloadedmetadata = null;
+        audio.oncanplay = null;
+        audio.onerror = null;
+        audio.onabort = null;
+
+      };
+
+
+    const fail =
+      function(message) {
+
+        if (finished) {
+          return;
+        }
+
+        finished = true;
+
+        cleanup();
+
+        reject(
+          new Error(message)
+        );
+
+      };
+
+
+    const success =
+      function() {
+
+        if (finished) {
+          return;
+        }
+
+        finished = true;
+
+        cleanup();
+
+        resolve(audio);
+
+      };
+
+
+    audio.preload = "auto";
+    audio.volume = 1.0;
+    audio.muted = false;
+
+
+    audio.onloadedmetadata =
+      function() {
+
+        log(
+          "Google TTS metadata",
+          {
+            duration:
+              audio.duration
+          }
+        );
+
+      };
+
+
+    audio.oncanplay =
+      function() {
+
+        log(
+          "Google TTS audio พร้อมเล่น"
+        );
+
+        success();
+
+      };
+
+
+    audio.onerror =
+      function() {
+
+        const mediaError =
+          audio.error;
+
+        let detail =
+          "HTML Audio error";
+
+
+        if (mediaError) {
+
+          detail =
+            "code=" +
+            mediaError.code;
+
+          if (mediaError.message) {
+
+            detail +=
+              " " +
+              mediaError.message;
+
+          }
+        }
+
+
+        fail(detail);
+
+      };
+
+
+    audio.onabort =
+      function() {
+
+        fail(
+          "Audio ถูกยกเลิก"
+        );
+
+      };
+
+
+    audio.src = url;
+
+    audio.load();
+
+  });
+}
+
+
+/* =====================================================
+   เล่น Google Thai TTS
+===================================================== */
+
+async function playGoogleThaiChunk(
+  text,
+  part,
+  total
 ) {
 
-  const chunks =
-    splitThaiText(
-      text
-    );
+  log(
+    "สร้างเสียงไทย",
+    {
+      part:
+        part + "/" + total,
+      length:
+        text.length
+    }
+  );
+
+
+  const url =
+    createGoogleThaiTTSUrl(text);
 
 
   log(
-    "เริ่ม Thai TTS",
+    "Google TTS URL พร้อม"
+  );
+
+
+  let audio = null;
+
+
+  try {
+
+    audio =
+      await testAudioUrl(url);
+
+  }
+
+  catch (error) {
+
+    log(
+      "Google TTS โหลดเสียง ERROR",
+      error.message
+    );
+
+    throw new Error(
+      "Google Thai TTS โหลดไฟล์เสียงไม่ได้: " +
+      error.message
+    );
+
+  }
+
+
+  return new Promise(function(resolve, reject) {
+
+    let ended = false;
+
+
+    const cleanup =
+      function() {
+
+        audio.onended = null;
+        audio.onerror = null;
+        audio.onpause = null;
+
+      };
+
+
+    audio.onended =
+      function() {
+
+        if (ended) {
+          return;
+        }
+
+        ended = true;
+
+        cleanup();
+
+        log(
+          "Thai TTS เล่นเสร็จ",
+          {
+            part:
+              part + "/" + total
+          }
+        );
+
+        resolve();
+
+      };
+
+
+    audio.onerror =
+      function() {
+
+        if (ended) {
+          return;
+        }
+
+        ended = true;
+
+        cleanup();
+
+        reject(
+          new Error(
+            "HTML Audio error ขณะเล่น"
+          )
+        );
+
+      };
+
+
+    audio.onplay =
+      function() {
+
+        log(
+          "Thai TTS เริ่มเล่น",
+          {
+            part:
+              part + "/" + total
+          }
+        );
+
+        statusElement.innerText =
+          "🔊 กำลังพูดภาษาไทย... " +
+          part +
+          "/" +
+          total;
+
+      };
+
+
+    audio.volume = 1.0;
+    audio.muted = false;
+
+
+    audio.play()
+      .then(function() {
+
+        log(
+          "audio.play() สำเร็จ",
+          {
+            paused:
+              audio.paused,
+            muted:
+              audio.muted,
+            volume:
+              audio.volume
+          }
+        );
+
+      })
+      .catch(function(error) {
+
+        cleanup();
+
+        reject(
+          new Error(
+            "Browser ไม่อนุญาตให้เล่น Google TTS: " +
+            error.message
+          )
+        );
+
+      });
+
+  });
+
+}
+
+
+/* =====================================================
+   GOOGLE THAI TTS MAIN
+===================================================== */
+
+async function speakGoogleThai(text) {
+
+  const chunks =
+    splitThaiText(text, 180);
+
+
+  if (!chunks.length) {
+
+    return;
+
+  }
+
+
+  log(
+    "เริ่ม Google Thai TTS",
     {
       chunks:
         chunks.length
     }
   );
-
-
-  if (
-    !chunks.length
-  ) {
-
-    return;
-
-  }
 
 
   for (
@@ -1189,180 +1104,17 @@ async function speakThai(
   statusElement.innerText =
     "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
 
-
   log(
-    "Thai TTS พูดเสร็จแล้ว"
+    "Google Thai TTS พูดเสร็จทั้งหมด"
   );
-
-}
-
-
-/* =====================================================
-   Browser English TTS
-   ===================================================== */
-
-function speakEnglish(
-  text
-) {
-
-  return new Promise(
-    function(
-      resolve,
-      reject
-    ) {
-
-      if (
-        !(
-          "speechSynthesis"
-          in window
-        )
-      ) {
-
-        reject(
-          new Error(
-            "Browser ไม่รองรับ Speech Synthesis"
-          )
-        );
-
-        return;
-
-      }
-
-
-      if (
-        !text ||
-        !text.trim()
-      ) {
-
-        resolve();
-
-        return;
-
-      }
-
-
-      window.speechSynthesis
-        .cancel();
-
-
-      loadBrowserVoices();
-
-
-      const utterance =
-        new SpeechSynthesisUtterance(
-          text
-        );
-
-
-      utterance.lang =
-        "en-US";
-
-
-      if (
-        englishVoice
-      ) {
-
-        utterance.voice =
-          englishVoice;
-
-      }
-
-
-      utterance.rate =
-        0.95;
-
-
-      utterance.pitch =
-        1.0;
-
-
-      utterance.volume =
-        1.0;
-
-
-      utterance.onstart =
-        function() {
-
-          log(
-            "Browser English TTS เริ่มพูด"
-          );
-
-
-          statusElement.innerText =
-            "🔊 กำลังพูดภาษาอังกฤษ...";
-
-        };
-
-
-      utterance.onend =
-        function() {
-
-          log(
-            "Browser English TTS พูดเสร็จแล้ว"
-          );
-
-
-          statusElement.innerText =
-            "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
-
-
-          resolve();
-
-        };
-
-
-      utterance.onerror =
-        function(event) {
-
-          log(
-            "Browser English TTS ERROR",
-            event.error
-          );
-
-
-          reject(
-            new Error(
-              "Browser English TTS: " +
-              event.error
-            )
-          );
-
-        };
-
-
-      try {
-
-        window.speechSynthesis
-          .speak(
-            utterance
-          );
-
-      }
-
-      catch (
-        error
-      ) {
-
-        reject(
-          error
-        );
-
-      }
-
-    }
-  );
-
 }
 
 
 /* =====================================================
    VOICEVOX
-   ญี่ปุ่นเท่านั้น
-   ===================================================== */
+===================================================== */
 
-async function speakVoicevox(
-  text
-) {
+async function speakVoicevox(text) {
 
   statusElement.innerText =
     "🎙️ กำลังสร้างเสียง VOICEVOX...";
@@ -1379,29 +1131,18 @@ async function speakVoicevox(
   );
 
 
-  /*
-     ตรวจ Engine
-  */
-
-  log(
-    "เริ่มตรวจสอบ VOICEVOX"
-  );
-
+  /* VERSION */
 
   const versionResponse =
     await fetch(
-      VOICEVOX_URL +
-      "/version",
+      VOICEVOX_URL + "/version",
       {
-        method:
-          "GET"
+        method: "GET"
       }
     );
 
 
-  if (
-    !versionResponse.ok
-  ) {
+  if (!versionResponse.ok) {
 
     throw new Error(
       "VOICEVOX /version HTTP " +
@@ -1421,30 +1162,18 @@ async function speakVoicevox(
   );
 
 
-  /*
-     ตรวจ Speaker
-  */
-
-  log(
-    "กำลังตรวจ Speaker ID",
-    VOICEVOX_SPEAKER_ID
-  );
-
+  /* SPEAKERS */
 
   const speakersResponse =
     await fetch(
-      VOICEVOX_URL +
-      "/speakers",
+      VOICEVOX_URL + "/speakers",
       {
-        method:
-          "GET"
+        method: "GET"
       }
     );
 
 
-  if (
-    !speakersResponse.ok
-  ) {
+  if (!speakersResponse.ok) {
 
     throw new Error(
       "VOICEVOX /speakers HTTP " +
@@ -1458,54 +1187,39 @@ async function speakVoicevox(
     await speakersResponse.json();
 
 
-  let speakerFound =
-    null;
+  let speakerFound = null;
 
 
-  for (
-    const speaker
-    of speakers
-  ) {
+  for (const speaker of speakers) {
 
-    if (
-      speaker.styles
-    ) {
+    if (!speaker.styles) {
+      continue;
+    }
 
-      for (
-        const style
-        of speaker.styles
+
+    for (const style of speaker.styles) {
+
+      if (
+        style.id ===
+        VOICEVOX_SPEAKER_ID
       ) {
 
-        if (
-          style.id ===
-          VOICEVOX_SPEAKER_ID
-        ) {
-
-          speakerFound = {
-
-            name:
-              speaker.name,
-
-            style:
-              style.name,
-
-            id:
-              style.id
-
-          };
-
-        }
+        speakerFound = {
+          name:
+            speaker.name,
+          style:
+            style.name,
+          id:
+            style.id
+        };
 
       }
 
     }
-
   }
 
 
-  if (
-    !speakerFound
-  ) {
+  if (!speakerFound) {
 
     throw new Error(
       "ไม่พบ VOICEVOX Speaker ID " +
@@ -1521,14 +1235,7 @@ async function speakVoicevox(
   );
 
 
-  /*
-     audio_query
-  */
-
-  log(
-    "กำลังสร้าง audio_query"
-  );
-
+  /* AUDIO QUERY */
 
   const queryResponse =
     await fetch(
@@ -1536,12 +1243,9 @@ async function speakVoicevox(
       "/audio_query?speaker=" +
       VOICEVOX_SPEAKER_ID +
       "&text=" +
-      encodeURIComponent(
-        text
-      ),
+      encodeURIComponent(text),
       {
-        method:
-          "POST"
+        method: "POST"
       }
     );
 
@@ -1557,13 +1261,10 @@ async function speakVoicevox(
   );
 
 
-  if (
-    !queryResponse.ok
-  ) {
+  if (!queryResponse.ok) {
 
     const errorText =
       await queryResponse.text();
-
 
     throw new Error(
       "VOICEVOX audio_query HTTP " +
@@ -1579,29 +1280,13 @@ async function speakVoicevox(
     await queryResponse.json();
 
 
-  /*
-     ปรับบุคลิกเสียง
-  */
-
-  query.speedScale =
-    1.0;
+  query.speedScale = 1.0;
+  query.pitchScale = 0.02;
+  query.intonationScale = 1.08;
+  query.volumeScale = 1.0;
 
 
-  query.pitchScale =
-    0.02;
-
-
-  query.intonationScale =
-    1.08;
-
-
-  query.volumeScale =
-    1.0;
-
-
-  /*
-     synthesis
-  */
+  /* SYNTHESIS */
 
   log(
     "กำลังสร้างไฟล์เสียง WAV"
@@ -1614,24 +1299,18 @@ async function speakVoicevox(
       "/synthesis?speaker=" +
       VOICEVOX_SPEAKER_ID,
       {
-        method:
-          "POST",
+        method: "POST",
 
         headers: {
-
           "Content-Type":
             "application/json",
 
           "Accept":
             "audio/wav"
-
         },
 
         body:
-          JSON.stringify(
-            query
-          )
-
+          JSON.stringify(query)
       }
     );
 
@@ -1647,13 +1326,10 @@ async function speakVoicevox(
   );
 
 
-  if (
-    !synthesisResponse.ok
-  ) {
+  if (!synthesisResponse.ok) {
 
     const errorText =
       await synthesisResponse.text();
-
 
     throw new Error(
       "VOICEVOX synthesis HTTP " +
@@ -1670,7 +1346,7 @@ async function speakVoicevox(
 
 
   log(
-    "ได้รับไฟล์เสียง",
+    "ได้รับไฟล์เสียง VOICEVOX",
     {
       size:
         audioBlob.size,
@@ -1692,151 +1368,146 @@ async function speakVoicevox(
   }
 
 
-  /*
-     เล่น WAV
-  */
-
   const audioUrl =
-    URL.createObjectURL(
-      audioBlob
-    );
+    URL.createObjectURL(audioBlob);
 
 
   const audio =
-    new Audio(
-      audioUrl
-    );
+    new Audio(audioUrl);
 
 
-  audio.volume =
-    1.0;
+  audio.volume = 1.0;
+  audio.muted = false;
+  audio.preload = "auto";
 
 
-  return new Promise(
-    function(
-      resolve,
-      reject
-    ) {
+  return new Promise(function(resolve, reject) {
 
-      audio.onplay =
-        function() {
-
-          log(
-            "VOICEVOX เริ่มเล่นเสียง"
-          );
+    let finished = false;
 
 
-          statusElement.innerText =
-            "🔊 ずんだもん กำลังพูด...";
+    const cleanup =
+      function() {
 
-        };
+        audio.onended = null;
+        audio.onerror = null;
 
-
-      audio.onended =
-        function() {
-
-          log(
-            "VOICEVOX พูดเสร็จแล้ว"
-          );
+      };
 
 
-          URL.revokeObjectURL(
-            audioUrl
-          );
+    audio.onplay =
+      function() {
+
+        log(
+          "VOICEVOX เริ่มเล่นเสียง"
+        );
+
+        statusElement.innerText =
+          "🔊 ずんだもん กำลังพูด...";
+
+      };
 
 
-          statusElement.innerText =
-            "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+    audio.onended =
+      function() {
+
+        if (finished) {
+          return;
+        }
+
+        finished = true;
+
+        cleanup();
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+        log(
+          "VOICEVOX พูดเสร็จแล้ว"
+        );
+
+        statusElement.innerText =
+          "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
+
+        resolve();
+
+      };
 
 
-          resolve();
+    audio.onerror =
+      function() {
 
-        };
+        if (finished) {
+          return;
+        }
 
+        finished = true;
 
-      audio.onerror =
-        function() {
+        cleanup();
 
-          log(
-            "VOICEVOX audio playback ERROR"
-          );
+        URL.revokeObjectURL(
+          audioUrl
+        );
 
+        reject(
+          new Error(
+            "เปิดไฟล์เสียง VOICEVOX ไม่ได้"
+          )
+        );
 
-          URL.revokeObjectURL(
-            audioUrl
-          );
-
-
-          reject(
-            new Error(
-              "เปิดไฟล์เสียง VOICEVOX ไม่ได้"
-            )
-          );
-
-        };
+      };
 
 
-      audio.play()
-        .then(
-          function() {
+    audio.play()
+      .then(function() {
 
-            log(
-              "VOICEVOX audio.play() สำเร็จ",
-              {
-                paused:
-                  audio.paused,
-                volume:
-                  audio.volume,
-                muted:
-                  audio.muted
-              }
-            );
-
-          }
-        )
-        .catch(
-          function(error) {
-
-            log(
-              "VOICEVOX audio.play() ERROR",
-              error.message
-            );
-
-
-            URL.revokeObjectURL(
-              audioUrl
-            );
-
-
-            reject(
-              error
-            );
-
+        log(
+          "VOICEVOX audio.play() สำเร็จ",
+          {
+            paused:
+              audio.paused,
+            muted:
+              audio.muted,
+            volume:
+              audio.volume
           }
         );
 
-    }
-  );
+      })
+      .catch(function(error) {
 
+        if (finished) {
+          return;
+        }
+
+        finished = true;
+
+        cleanup();
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+        reject(error);
+
+      });
+
+  });
 }
 
 
 /* =====================================================
-   ระบบเสียงหลัก
-   Gemini → ตรวจภาษา → TTS
-   ===================================================== */
+   SPEAK MAIN
+===================================================== */
 
-async function speak(
-  text
-) {
+async function speak(text) {
 
   if (
     !text ||
     !text.trim()
   ) {
-
     return;
-
   }
 
 
@@ -1844,13 +1515,11 @@ async function speak(
 
 
   const language =
-    detectLanguage(
-      text
-    );
+    detectLanguage(text);
 
 
   log(
-    "เลือกภาษาเสียง",
+    "เลือกระบบเสียง",
     {
       language:
         language
@@ -1860,38 +1529,83 @@ async function speak(
 
   try {
 
-    /*
-       ภาษาไทย
-       → Google Thai TTS
-    */
+    /* =========================
+       THAI
+    ========================= */
 
-    if (
-      language === "th"
-    ) {
+    if (language === "th") {
+
+      loadBrowserVoices();
+
+
+      if (thaiVoice) {
+
+        log(
+          "พบ Thai Voice → ใช้ Browser TTS",
+          {
+            name:
+              thaiVoice.name,
+            lang:
+              thaiVoice.lang
+          }
+        );
+
+
+        await speakBrowser(
+          text,
+          "th"
+        );
+
+
+        return;
+      }
+
+
+      /*
+        ไม่มี Thai Voice
+        → ใช้ Google Thai TTS
+      */
 
       log(
-        "ภาษาไทย → Google Thai TTS"
+        "ไม่พบ Thai Voice → ใช้ Google Thai TTS"
       );
 
 
-      await speakThai(
-        text
-      );
+      try {
+
+        await speakGoogleThai(
+          text
+        );
 
 
-      return;
+        return;
 
+      }
+
+      catch (googleError) {
+
+        log(
+          "Google Thai TTS ERROR",
+          googleError.message
+        );
+
+
+        throw new Error(
+          "❌ ไม่สามารถพูดภาษาไทยได้\n\n" +
+          "ไม่พบ Thai Voice ใน Browser และ Google Thai TTS ก็เล่นเสียงไม่ได้\n\n" +
+          "สาเหตุล่าสุด:\n" +
+          googleError.message
+        );
+
+      }
     }
 
 
-    /*
-       ภาษาญี่ปุ่น
-       → VOICEVOX ID 7
-    */
+    /* =========================
+       JAPANESE
+    ========================= */
 
-    if (
-      language === "ja"
-    ) {
+    if (language === "ja") {
 
       log(
         "ภาษาญี่ปุ่น → VOICEVOX ID 7"
@@ -1904,53 +1618,53 @@ async function speak(
 
 
       return;
-
     }
 
 
-    /*
-       ภาษาอังกฤษ
-       → Browser TTS
-    */
+    /* =========================
+       ENGLISH
+    ========================= */
 
-    if (
-      language === "en"
-    ) {
+    if (language === "en") {
+
+      loadBrowserVoices();
+
+
+      if (!englishVoice) {
+
+        throw new Error(
+          "ไม่พบ English Voice ใน Browser"
+        );
+
+      }
+
 
       log(
-        "ภาษาอังกฤษ → Browser TTS"
+        "ภาษาอังกฤษ → Browser TTS",
+        {
+          voice:
+            englishVoice.name
+        }
       );
 
 
-      await speakEnglish(
-        text
+      await speakBrowser(
+        text,
+        "en"
       );
 
 
       return;
-
     }
 
 
-    /*
-       ไม่ทราบภาษา
-       → ไทย
-    */
-
-    log(
-      "ไม่ทราบภาษา → Google Thai TTS"
-    );
-
-
-    await speakThai(
-      text
+    throw new Error(
+      "ไม่สามารถตรวจภาษาได้"
     );
 
   }
 
-  catch (
-    error
-  ) {
+  catch (error) {
 
     log(
       "ระบบเสียง ERROR",
@@ -1971,20 +1685,15 @@ async function speak(
       error.message;
 
   }
-
 }
 
 
 /* =====================================================
    SPEECH RECOGNITION
-   ===================================================== */
+===================================================== */
 
-let recognition =
-  null;
-
-
-let listening =
-  false;
+let recognition = null;
+let listening = false;
 
 
 const SpeechRecognition =
@@ -1992,13 +1701,10 @@ const SpeechRecognition =
   window.webkitSpeechRecognition;
 
 
-if (
-  !SpeechRecognition
-) {
+if (!SpeechRecognition) {
 
   statusElement.innerText =
     "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
-
 
   log(
     "ไม่พบ SpeechRecognition"
@@ -2011,18 +1717,14 @@ else {
   recognition =
     new SpeechRecognition();
 
-
   recognition.lang =
     "th-TH";
-
 
   recognition.continuous =
     false;
 
-
   recognition.interimResults =
     false;
-
 
   recognition.maxAlternatives =
     1;
@@ -2031,20 +1733,14 @@ else {
   recognition.onstart =
     function() {
 
-      listening =
-        true;
+      listening = true;
 
-
-      micButton
-        .classList
-        .add(
-          "listening"
-        );
-
+      micButton.classList.add(
+        "listening"
+      );
 
       statusElement.innerText =
         "🎙️ กำลังฟังครับ...";
-
 
       log(
         "เริ่มรับเสียง"
@@ -2057,9 +1753,7 @@ else {
     function(event) {
 
       const text =
-        event
-          .results[0][0]
-          .transcript;
+        event.results[0][0].transcript;
 
 
       questionElement.value =
@@ -2074,10 +1768,7 @@ else {
 
       stopListening();
 
-
-      askAI(
-        text
-      );
+      askAI(text);
 
     };
 
@@ -2099,8 +1790,7 @@ else {
 
 
       if (
-        event.error ===
-        "not-allowed"
+        event.error === "not-allowed"
       ) {
 
         message =
@@ -2109,8 +1799,7 @@ else {
       }
 
       else if (
-        event.error ===
-        "no-speech"
+        event.error === "no-speech"
       ) {
 
         message =
@@ -2119,8 +1808,7 @@ else {
       }
 
       else if (
-        event.error ===
-        "network"
+        event.error === "network"
       ) {
 
         message =
@@ -2150,21 +1838,14 @@ function startListening() {
   unlockAudio();
 
 
-  if (
-    !recognition
-  ) {
-
+  if (!recognition) {
     return;
-
   }
 
 
-  if (
-    listening
-  ) {
+  if (listening) {
 
     recognition.stop();
-
 
     return;
 
@@ -2177,9 +1858,7 @@ function startListening() {
 
   }
 
-  catch (
-    error
-  ) {
+  catch (error) {
 
     log(
       "เริ่มไมค์ ERROR",
@@ -2187,46 +1866,36 @@ function startListening() {
     );
 
   }
-
 }
 
 
 function stopListening() {
 
-  listening =
-    false;
+  listening = false;
 
-
-  micButton
-    .classList
-    .remove(
-      "listening"
-    );
-
+  micButton.classList.remove(
+    "listening"
+  );
 }
 
 
-micButton
-  .addEventListener(
-    "click",
-    function() {
+micButton.addEventListener(
+  "click",
+  function() {
 
-      unlockAudio();
+    unlockAudio();
 
-      startListening();
+    startListening();
 
-    }
-  );
+  }
+);
 
 
 /* =====================================================
-   GEMINI / APPS SCRIPT
-   JSONP
-   ===================================================== */
+   GEMINI / APPS SCRIPT JSONP
+===================================================== */
 
-function askAI(
-  question
-) {
+function askAI(question) {
 
   if (
     !question ||
@@ -2234,7 +1903,6 @@ function askAI(
   ) {
 
     return;
-
   }
 
 
@@ -2264,8 +1932,7 @@ function askAI(
     Date.now() +
     "_" +
     Math.floor(
-      Math.random() *
-      100000
+      Math.random() * 100000
     );
 
 
@@ -2275,63 +1942,46 @@ function askAI(
     );
 
 
-  let completed =
-    false;
+  let completed = false;
 
 
   window[callbackName] =
     function(result) {
 
-      if (
-        completed
-      ) {
-
+      if (completed) {
         return;
+      }
+
+
+      completed = true;
+
+
+      if (script.parentNode) {
+
+        script.parentNode.removeChild(
+          script
+        );
 
       }
 
 
-      completed =
-        true;
+      delete window[callbackName];
 
 
-      if (
-        script.parentNode
-      ) {
-
-        script.parentNode
-          .removeChild(
-            script
-          );
-
-      }
-
-
-      delete window[
-        callbackName
-      ];
-
-
-      if (
-        !result
-      ) {
+      if (!result) {
 
         statusElement.innerText =
           "❌ AI ไม่ส่งข้อมูลกลับมา";
 
-
         answerElement.innerText =
           "ไม่ได้รับคำตอบจาก AI";
-
 
         return;
 
       }
 
 
-      if (
-        result.error
-      ) {
+      if (result.error) {
 
         log(
           "AI ERROR",
@@ -2370,18 +2020,15 @@ function askAI(
         answer;
 
 
+      /*
+        สำคัญ:
+        เรียก speak หลัง Gemini ตอบ
+      */
+
       unlockAudio();
 
 
-      /*
-         สำคัญ:
-         ให้ Gemini ตอบเสร็จก่อน
-         แล้วจึงเลือกภาษาและพูด
-      */
-
-      speak(
-        answer
-      );
+      speak(answer);
 
     };
 
@@ -2398,24 +2045,18 @@ function askAI(
     );
 
 
-  script.src =
-    url;
+  script.src = url;
 
 
   script.onerror =
     function() {
 
-      if (
-        completed
-      ) {
-
+      if (completed) {
         return;
-
       }
 
 
-      completed =
-        true;
+      completed = true;
 
 
       delete window[
@@ -2423,14 +2064,11 @@ function askAI(
       ];
 
 
-      if (
-        script.parentNode
-      ) {
+      if (script.parentNode) {
 
-        script.parentNode
-          .removeChild(
-            script
-          );
+        script.parentNode.removeChild(
+          script
+        );
 
       }
 
@@ -2450,73 +2088,63 @@ function askAI(
     };
 
 
-  document.body
-    .appendChild(
-      script
-    );
-
+  document.body.appendChild(
+    script
+  );
 }
 
 
 /* =====================================================
    ENTER = SEND
-   ===================================================== */
+===================================================== */
 
-questionElement
-  .addEventListener(
-    "keydown",
-    function(event) {
+questionElement.addEventListener(
+  "keydown",
+  function(event) {
 
-      if (
-        event.key ===
-        "Enter"
-      ) {
+    if (event.key === "Enter") {
 
-        event.preventDefault();
+      event.preventDefault();
 
+      unlockAudio();
 
-        unlockAudio();
-
-
-        askAI(
-          this.value
-        );
-
-      }
+      askAI(
+        this.value
+      );
 
     }
-  );
+
+  }
+);
 
 
 /* =====================================================
    PAGE CLICK
-   ===================================================== */
+===================================================== */
 
-document
-  .addEventListener(
-    "click",
-    function() {
+document.addEventListener(
+  "click",
+  function() {
 
-      unlockAudio();
+    unlockAudio();
 
-    }
-  );
+  }
+);
 
 
 /* =====================================================
    STARTUP
-   ===================================================== */
+===================================================== */
 
 log(
   "Cucumber AI พร้อมทำงาน"
 );
 
-
 log(
   "โหมดเสียง",
   {
     thai:
-      "Google Thai TTS",
+      "Thai Voice → Google Thai TTS fallback",
     japanese:
       "VOICEVOX ID 7",
     english:
@@ -2524,9 +2152,8 @@ log(
   }
 );
 
-
 </script>
 
 </body>
-
 </html>
+```
