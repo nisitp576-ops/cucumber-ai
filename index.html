@@ -319,16 +319,23 @@ function playBase64Mp3(base64) {
 }
 
 async function speakThaiServer(text) {
-  const chunks = splitText(text, 450);   // FIX: 450 ตัวอักษร/chunk
+  const chunks = splitText(text, 450);
   if (!chunks.length) return;
   log("Server Thai TTS", { chunks: chunks.length });
 
-  for (let i = 0; i < chunks.length; i++) {
-    statusElement.innerText = "🔊 กำลังสร้างเสียงไทย " + (i + 1) + "/" + chunks.length + "...";
-    log("TTS chunk", { part: i + 1, len: chunks[i].length });
-    const base64 = await fetchServerTTS(chunks[i]);
-    statusElement.innerText = "🔊 กำลังพูดภาษาไทย " + (i + 1) + "/" + chunks.length + "...";
-    await playBase64Mp3(base64);
+  // FIX: โหลดเสียงทุก chunk พร้อมกัน (parallel) แล้วค่อยเล่นไล่
+  statusElement.innerText = "🔊 กำลังสร้างเสียงไทย (" + chunks.length + " ส่วน)...";
+
+  const promises = chunks.map(function (chunk, i) {
+    log("TTS request", { part: i + 1, len: chunk.length });
+    return fetchServerTTS(chunk);
+  });
+
+  const results = await Promise.all(promises);
+
+  for (let i = 0; i < results.length; i++) {
+    statusElement.innerText = "🔊 กำลังพูดภาษาไทย " + (i + 1) + "/" + results.length + "...";
+    await playBase64Mp3(results[i]);
   }
 
   statusElement.innerText = "พร้อมครับ กดไมค์เพื่อถามอีกครั้ง";
