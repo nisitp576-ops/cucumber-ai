@@ -127,17 +127,17 @@ body {
 /* ===== มาสคอตแอบมอง ===== */
 .mascot {
   position: absolute;
-  top: -72px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 110px;
+  top: -55px;
+  left: -20px;
+  transform: none;
+  width: 95px;
   z-index: 5;
   animation: mascotPeek 4s ease-in-out infinite;
   filter: drop-shadow(0 4px 10px rgba(10,3,25,0.5));
 }
 @keyframes mascotPeek {
-  0%, 100% { transform: translateX(-50%) translateY(6px); }
-  50%      { transform: translateX(-50%) translateY(-4px); }
+  0%, 100% { transform: translateY(6px) rotate(-4deg); }
+  50%      { transform: translateY(-4px) rotate(4deg); }
 }
 .mascot img { display: block; width: 100%; }
   
