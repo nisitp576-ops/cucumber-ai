@@ -13,7 +13,6 @@ body {
   color: #fff;
   overflow-x: hidden;
   min-height: 100vh;
-  /* ภาพจริง + ชั้นมืดทับให้อ่านง่าย */
   background:
     linear-gradient(180deg, rgba(15,8,35,0.35), rgba(30,12,50,0.55)),
     url("bg.webp.jpg") center / cover no-repeat fixed;
@@ -22,14 +21,14 @@ body {
   body { background-attachment: scroll; }
 }
 
-/* ===== โคมไฟลอย ===== */
+/* ===== โคมไฟลอย (ไม่ใช้ drop-shadow filter เพื่อลด CPU) ===== */
 .lantern {
   position: fixed;
   bottom: -80px;
   z-index: 3;
   pointer-events: none;
   animation: lanternRise linear infinite;
-  filter: drop-shadow(0 0 18px rgba(255,180,90,0.75));
+  will-change: transform;
 }
 @keyframes lanternRise {
   0%   { transform: translateY(0) translateX(0) rotate(-3deg); opacity: 0; }
@@ -45,16 +44,52 @@ body {
   z-index: 4; pointer-events: none;
 }
 
-/* ===== กิ่งซากุระ ===== */
+/* ===== กิ่งซากุระ (ไม่ใช้ drop-shadow filter) ===== */
 .branch {
   position: fixed; top: -20px;
   z-index: 5; pointer-events: none;
-  filter: drop-shadow(0 4px 12px rgba(255,150,190,0.3));
+  will-change: transform;
 }
 .branch.left  { left: -40px; transform-origin: top left; animation: swayL 7s ease-in-out infinite; }
 .branch.right { right: -40px; transform: scaleX(-1); transform-origin: top right; animation: swayR 8.5s ease-in-out infinite; }
 @keyframes swayL { 0%,100%{transform:rotate(0deg);} 50%{transform:rotate(2.5deg);} }
 @keyframes swayR { 0%,100%{transform:scaleX(-1) rotate(0deg);} 50%{transform:scaleX(-1) rotate(2.5deg);} }
+
+/* ===== เครื่องเล่นเพลง ===== */
+.musicPlayer {
+  position: fixed;
+  bottom: 18px; right: 18px;
+  z-index: 20;
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(25, 12, 48, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,190,220,0.35);
+  border-radius: 40px;
+  padding: 8px 14px;
+  box-shadow: 0 8px 30px rgba(10,3,25,0.6);
+}
+#musicBtn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,190,220,0.45);
+  background: radial-gradient(circle at 35% 30%, rgba(255,195,225,0.3), rgba(130,70,150,0.35));
+  color: #fff; font-size: 20px; cursor: pointer;
+  transition: 0.25s;
+}
+#musicBtn:hover { transform: scale(1.08); }
+#musicBtn.playing {
+  background: radial-gradient(circle at 35% 30%, #ff8fb0, #c04a80);
+  box-shadow: 0 0 20px rgba(255,95,150,0.7);
+}
+#volumeSlider {
+  width: 90px;
+  accent-color: #ff9ec4;
+  cursor: pointer;
+}
+@media (max-width: 480px) {
+  #volumeSlider { width: 60px; }
+}
 
 /* ===== เนื้อหา ===== */
 .app {
@@ -249,6 +284,12 @@ h1 {
 <!-- กลีบซากุระ -->
 <canvas id="petals"></canvas>
 
+<!-- เครื่องเล่นเพลง -->
+<div class="musicPlayer">
+  <button id="musicBtn" type="button" title="เปิด/ปิดเพลง">🎵</button>
+  <input id="volumeSlider" type="range" min="0" max="100" value="30" title="ปรับความดัง">
+</div>
+
 <div class="app">
   <div class="card">
     <div class="robot">🤖</div>
@@ -281,32 +322,60 @@ const answerElement = document.getElementById("answer");
 const questionElement = document.getElementById("question");
 const micButton = document.getElementById("micButton");
 const debugElement = document.getElementById("debug");
+const musicBtn = document.getElementById("musicBtn");
+const volumeSlider = document.getElementById("volumeSlider");
 
-/* ================= SAKURA PETALS (2 ชั้น depth) ================= */
+/* ================= SAKURA PETALS (เวอร์ชันประหยัด CPU) =================
+ * - วาด sprite กลีบล่วงหน้าครั้งเดียว (ไม่ใช้ shadowBlur/filter ทุกเฟรม)
+ * - จำกัด 30fps
+ * - สลับแท็บแล้วหยุดวาด
+ */
 (function () {
   const canvas = document.getElementById("petals");
   const ctx = canvas.getContext("2d");
   let petals = [];
+  let running = true;
+
+  const COLORS = ["#ffc4d6", "#ffb0cc", "#ffd6e4", "#f9a8c4", "#ffe0ec"];
+  const SIZES = [8, 11, 14]; // 3 ขนาด sprite × 5 สี = 15 sprite พอ
+
+  /* สร้าง sprite ล่วงหน้า */
+  const sprites = {};
+  COLORS.forEach(function (color) {
+    SIZES.forEach(function (size) {
+      const key = color + size;
+      const c = document.createElement("canvas");
+      c.width = c.height = size * 2;
+      const g = c.getContext("2d");
+      g.translate(size, size);
+      g.fillStyle = color;
+      g.beginPath();
+      g.moveTo(0, -size / 2);
+      g.bezierCurveTo(size / 2, -size / 2, size / 2, size / 3, 0, size / 2);
+      g.bezierCurveTo(-size / 2, size / 3, -size / 2, -size / 2, 0, -size / 2);
+      g.fill();
+      sprites[key] = c;
+    });
+  });
 
   function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
   addEventListener("resize", resize); resize();
 
-  const COUNT = Math.min(60, Math.floor(innerWidth / 18));
-  const COLORS = ["#ffc4d6", "#ffb0cc", "#ffd6e4", "#f9a8c4", "#ffe0ec"];
+  const COUNT = Math.min(35, Math.floor(innerWidth / 30)); // ลดจำนวนลง
 
   function newPetal(front) {
+    const size = front ? SIZES[1 + Math.floor(Math.random() * 2)] : SIZES[0];
     return {
       x: Math.random() * canvas.width,
       y: Math.random() * -canvas.height,
-      size: front ? 7 + Math.random() * 9 : 4 + Math.random() * 5,
+      size: size,
       speedY: front ? 1.0 + Math.random() * 1.6 : 0.5 + Math.random() * 0.8,
       drift: 0.4 + Math.random() * 1.0,
       phase: Math.random() * Math.PI * 2,
       rot: Math.random() * Math.PI * 2,
       rotSpeed: (Math.random() - 0.5) * 0.05,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      opacity: front ? 0.7 + Math.random() * 0.3 : 0.3 + Math.random() * 0.3,
-      blur: front ? 0 : 1
+      opacity: front ? 0.75 : 0.35
     };
   }
 
@@ -316,24 +385,15 @@ const debugElement = document.getElementById("debug");
     petals.push(p);
   }
 
-  function drawPetal(p) {
-    ctx.save();
-    if (p.blur) ctx.filter = "blur(1.5px)";
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot);
-    ctx.globalAlpha = p.opacity;
-    ctx.fillStyle = p.color;
-    ctx.shadowColor = "rgba(255,170,205,0.5)";
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.moveTo(0, -p.size / 2);
-    ctx.bezierCurveTo(p.size / 2, -p.size / 2, p.size / 2, p.size / 3, 0, p.size / 2);
-    ctx.bezierCurveTo(-p.size / 2, p.size / 3, -p.size / 2, -p.size / 2, 0, -p.size / 2);
-    ctx.fill();
-    ctx.restore();
-  }
+  let lastTime = 0;
+  const FRAME_MS = 1000 / 30; // จำกัด 30fps
 
-  function animate() {
+  function animate(now) {
+    requestAnimationFrame(animate);
+    if (!running) return;
+    if (now - lastTime < FRAME_MS) return; // ข้ามเฟรม
+    lastTime = now;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < petals.length; i++) {
       const p = petals[i];
@@ -342,12 +402,64 @@ const debugElement = document.getElementById("debug");
       p.x += Math.sin(p.phase) * p.drift;
       p.rot += p.rotSpeed;
       if (p.y > canvas.height + 20) petals[i] = newPetal(i % 2 === 0);
-      drawPetal(p);
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.opacity;
+      ctx.drawImage(sprites[p.color + p.size], -p.size, -p.size);
+      ctx.restore();
     }
-    requestAnimationFrame(animate);
   }
-  animate();
+  requestAnimationFrame(animate);
+
+  /* สลับแท็บ → หยุดวาด ประหยัด CPU */
+  document.addEventListener("visibilitychange", function () {
+    running = !document.hidden;
+  });
 })();
+
+/* ================= BACKGROUND MUSIC ================= */
+let bgMusic = null;
+
+function initMusic() {
+  if (bgMusic) return;
+  try {
+    bgMusic = new Audio("music.mp3");
+    bgMusic.loop = true;
+    bgMusic.volume = volumeSlider.value / 100;
+    log("โหลดเพลงพื้นหลังสำเร็จ");
+  } catch (e) {
+    log("โหลดเพลง ERROR", e.message);
+  }
+}
+
+musicBtn.addEventListener("click", function () {
+  initMusic();
+  if (!bgMusic) return;
+
+  if (bgMusic.paused) {
+    bgMusic.play()
+      .then(function () {
+        musicBtn.classList.add("playing");
+        musicBtn.textContent = "🔊";
+        log("เปิดเพลงแล้ว");
+      })
+      .catch(function (e) {
+        log("เล่นเพลงไม่ได้", e.message);
+        statusElement.innerText = "❌ เล่นเพลงไม่ได้ (เช็กว่า music.mp3 อยู่ใน repo)";
+      });
+  } else {
+    bgMusic.pause();
+    musicBtn.classList.remove("playing");
+    musicBtn.textContent = "🎵";
+    log("ปิดเพลงแล้ว");
+  }
+});
+
+volumeSlider.addEventListener("input", function () {
+  if (bgMusic) bgMusic.volume = this.value / 100;
+});
 
 /* ================= DEBUG ================= */
 function log(message, data) {
@@ -615,166 +727,6 @@ async function speak(text) {
   if (!text || !text.trim()) return;
   unlockAudio();
   const language = detectLanguage(text);
-  log("เลือกระบบเสียง", { language: language });
+  log("เลือกระบบเสียง",
 
-  try {
-    if (language === "th") {
-      try {
-        await speakThaiServer(text);
-        return;
-      } catch (serverError) {
-        log("Server TTS ERROR", serverError.message);
-        loadBrowserVoices();
-        if (thaiVoice) {
-          log("fallback → Browser Thai Voice");
-          await speakBrowser(text, "th");
-          return;
-        }
-        throw serverError;
-      }
-    }
-    if (language === "ja") { await speakBrowser(text, "ja"); return; }
-    if (language === "zh") { await speakBrowser(text, "zh"); return; }
-    if (language === "en") { await speakBrowser(text, "en"); return; }
-    await speakThaiServer(text);
-  } catch (error) {
-    log("ระบบเสียง ERROR", error.message);
-    statusElement.innerText = "❌ ระบบเสียงมีปัญหา";
-    answerElement.innerText += "\n\n[VOICE ERROR]\n" + error.message;
-  }
-}
-
-/* ================= SPEECH RECOGNITION ================= */
-let recognition = null;
-let listening = false;
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (!SpeechRecognition) {
-  statusElement.innerText = "เบราว์เซอร์นี้ไม่รองรับการรับเสียง";
-} else {
-  recognition = new SpeechRecognition();
-  recognition.lang = "th-TH";
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = function () {
-    listening = true;
-    micButton.classList.add("listening");
-    statusElement.innerText = "🎙️ กำลังฟังครับ...";
-  };
-  recognition.onresult = function (event) {
-    const text = event.results[0][0].transcript;
-    questionElement.value = text;
-    log("รับคำถามจากไมค์", text);
-    stopListening();
-    askAI(text);
-  };
-  recognition.onerror = function (event) {
-    stopListening();
-    let message = "รับเสียงไม่ได้ครับ";
-    if (event.error === "not-allowed") message = "ไม่ได้รับอนุญาตให้ใช้ไมโครโฟนครับ";
-    else if (event.error === "no-speech") message = "ไม่ได้ยินเสียงพูดครับ";
-    else if (event.error === "network") message = "ระบบรับเสียงมีปัญหาเครือข่ายครับ";
-    statusElement.innerText = message;
-  };
-  recognition.onend = function () { stopListening(); };
-}
-
-function startListening() {
-  unlockAudio();
-  if (!recognition) return;
-  if (listening) { recognition.stop(); return; }
-  try { recognition.start(); }
-  catch (error) { log("เริ่มไมค์ ERROR", error.message); }
-}
-function stopListening() {
-  listening = false;
-  micButton.classList.remove("listening");
-}
-
-micButton.addEventListener("click", function () {
-  unlockAudio();
-  startListening();
-});
-
-/* ================= ASK AI (JSONP) ================= */
-function askAI(question) {
-  if (!question || !question.trim()) return;
-  unlockAudio();
-
-  const cleanQuestion = question.trim();
-  log("ส่งคำถาม", cleanQuestion);
-  statusElement.innerText = "🤖 กำลังวิเคราะห์...";
-  answerElement.innerText = "กำลังอ่านข้อมูลจากสวน...";
-
-  const callbackName = "aiCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-  const script = document.createElement("script");
-  let completed = false;
-
-  function cleanupScript() {
-    delete window[callbackName];
-    if (script.parentNode) script.parentNode.removeChild(script);
-  }
-
-  window[callbackName] = function (result) {
-    if (completed) return;
-    completed = true;
-    cleanupScript();
-
-    if (!result) {
-      statusElement.innerText = "❌ AI ไม่ส่งข้อมูลกลับมา";
-      answerElement.innerText = "ไม่ได้รับคำตอบจาก AI";
-      return;
-    }
-    if (result.error) {
-      statusElement.innerText = "❌ เกิดข้อผิดพลาด";
-      answerElement.innerText = result.error;
-      return;
-    }
-
-    const answer = result.answer || "AI ไม่ได้ส่งคำตอบกลับมาครับ";
-    answerElement.innerText = answer;
-    unlockAudio();
-    speak(answer);
-  };
-
-  script.src = APPS_SCRIPT_URL +
-    "?action=ask&question=" + encodeURIComponent(cleanQuestion) +
-    "&callback=" + encodeURIComponent(callbackName);
-
-  script.onerror = function () {
-    if (completed) return;
-    completed = true;
-    cleanupScript();
-    statusElement.innerText = "❌ เชื่อมต่อ AI ไม่สำเร็จ";
-    answerElement.innerText = "ไม่สามารถเชื่อมต่อระบบ AI ได้ครับ";
-  };
-
-  document.body.appendChild(script);
-
-  setTimeout(function () {
-    if (completed) return;
-    completed = true;
-    cleanupScript();
-    statusElement.innerText = "❌ AI ตอบช้าเกินไป";
-    answerElement.innerText = "หมดเวลารับคำตอบ (timeout)";
-  }, AI_TIMEOUT_MS);
-}
-
-/* ================= EVENTS ================= */
-questionElement.addEventListener("keydown", function (event) {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    unlockAudio();
-    askAI(this.value);
-  }
-});
-
-document.addEventListener("click", unlockAudio);
-
-log("Cucumber AI พร้อมทำงาน");
-log("โหมดเสียง", { thai: "Server TTS (Apps Script)", japanese: "Browser TTS", english: "Browser TTS" });
-</script>
-</body>
-</html>
+> ⚠️ The response reached the length limit. Reply **continue** to get the rest.
