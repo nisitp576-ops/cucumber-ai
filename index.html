@@ -141,6 +141,33 @@ body {
 }
 .mascot img { display: block; width: 100%; }
 
+ /* ===== Speech bubble ===== */
+.bubble {
+  position: absolute;
+  top: -12px;
+  left: calc(100% + 10px);
+  min-width: 130px;
+  max-width: 190px;
+  background: rgba(255,255,255,0.92);
+  color: #5a2a48;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 9px 12px;
+  border-radius: 14px 14px 14px 4px;
+  border: 1px solid rgba(200,120,170,0.4);
+  box-shadow: 0 4px 14px rgba(10,3,25,0.3);
+  opacity: 0;
+  transform: translateY(6px) scale(0.85);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+  white-space: normal;
+  text-align: left;
+}
+.bubble.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+} 
+
 /* ===== อารมณ์มาสคอต ===== */
 .mascot.listening {
   animation: mascotListen 1s ease-in-out infinite;
@@ -415,8 +442,9 @@ body.day .musicPlayer {
 <div class="app">
   <div class="card">
     <div class="mascot">
-      <img src="mascot.png" alt="mascot">
-    </div>
+  <img src="mascot.png" alt="mascot">
+  <div class="bubble" id="bubble"></div>
+</div>
     <div class="robot">🤖</div>
     <h1>Cucumber AI</h1>
     <div class="subtitle">🌸 ผู้ช่วยดูแลสวนแตงกวา ・ 夜桜</div>
@@ -902,6 +930,7 @@ if (!SpeechRecognition) {
     listening = true;
     micButton.classList.add("listening");
     setMood("listening");
+    sayBubble("พูดมาเลย ฉันฟังอยู่ 👂", 3000);
     statusElement.innerText = "🎙️ กำลังฟังครับ...";
   };
   recognition.onresult = function (event) {
@@ -949,6 +978,7 @@ function askAI(question) {
   log("ส่งคำถาม", cleanQuestion);
   statusElement.innerText = "🤖 กำลังวิเคราะห์...";
   setMood("thinking");
+  sayBubble("เดี๋ยวนะ... กำลังคิด 💭", 60000);
   answerElement.innerText = "กำลังอ่านข้อมูลจากสวน...";
 
   const callbackName = "aiCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
@@ -1026,6 +1056,43 @@ function setMood(mood) {
   }
 }  
 
+/* ================= SPEECH BUBBLE ================= */
+const bubble = document.getElementById("bubble");
+let bubbleTimer = null;
+
+function sayBubble(text, duration = 3500) {
+  if (!bubble) return;
+  bubble.textContent = text;
+  bubble.classList.add("show");
+  if (bubbleTimer) clearTimeout(bubbleTimer);
+  bubbleTimer = setTimeout(function () {
+    bubble.classList.remove("show");
+  }, duration);
+}
+
+const idleLines = [
+  "ลองถามเรื่องแตงกวาสิ! 🥒",
+  "วันนี้อากาศดีจังเลย~ ☀️",
+  "กดไมค์แล้วพูดได้เลยนะ!",
+  "ฉันช่วยดูแลสวนได้นะ 🌱",
+  "มีอะไรอยากรู้บอกมาสิ~",
+  "🌸 ซากุระกำลังสวยเลย!"
+];
+
+setInterval(function () {
+  // คุยเองเฉพาะตอนแอฟ ไม่มีงาน
+  const isBusy = mascot.classList.contains("listening") ||
+                 mascot.classList.contains("thinking");
+  if (!isBusy && Math.random() < 0.6) {
+    sayBubble(idleLines[Math.floor(Math.random() * idleLines.length)], 4000);
+  }
+}, 22000);
+
+// พูดคำทักทายตอนเปิดเว็บ
+setTimeout(function () {
+  sayBubble("สวัสดีค่า~ 👋", 4000);
+}, 1500);  
+
 /* ================= TYPEWRITER ================= */
 let typeTimer = null;
 function typeWriter(element, text, speed = 28) {
@@ -1043,8 +1110,16 @@ function typeWriter(element, text, speed = 28) {
   }, speed);
 }  
 
+const doneLines = [
+  "ตอบแล้วนะ! ✨",
+  "งี้ก็ได้เรื่อง~ 😊",
+  "มีอะไรถามอีกได้เลย!",
+  "หวังว่าจะช่วยได้นะ 🌸"
+];
+  
  function onTypeDone() {
   setMood("happy");
+  sayBubble(doneLines[Math.floor(Math.random() * doneLines.length)]);
 }
   
 document.addEventListener("click", unlockAudio);
