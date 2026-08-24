@@ -464,7 +464,6 @@ body.day .musicPlayer {
 <button id="debugToggle" type="button">🛠️ Debug</button>
 <div id="debug"></div>
     
-    <div id="debug"></div>
   </div>
 </div>
 
@@ -612,7 +611,6 @@ addEventListener("resize", resize); resize();
     if (now - lastBurstTime < 33) return; // 30fps
     lastBurstTime = now;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     // วาดกลีบระเบิด (เฉพาะตอนมี)
     if (bursts.length === 0) return;
 
@@ -1148,7 +1146,9 @@ const idleLines = [
   "🌸 ซากุระกำลังสวยเลย!"
 ];
 
-setInterval(function () {
+etInterval(function () {
+  if (!manualMode) autoMode();
+}, 60000);
   // คุยเองเฉพาะตอนแอฟ ไม่มีงาน
   const isBusy = mascot.classList.contains("listening") ||
                  mascot.classList.contains("thinking");
