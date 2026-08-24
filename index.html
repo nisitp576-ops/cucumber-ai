@@ -576,6 +576,73 @@ const volumeSlider = document.getElementById("volumeSlider");
   });
 })();
 
+  /* ================= CLICK BURST ================= */
+(function () {
+  const canvas = document.getElementById("burstCanvas");
+  const ctx = canvas.getContext("2d");
+  const bursts = [];
+  const BURST_COLORS = ["#ffc4d6", "#ffb0cc", "#ffd6e4", "#ff9ec4", "#ffe0ec"];
+
+function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+addEventListener("resize", resize); resize();
+  
+  document.addEventListener("pointerdown", function (e) {
+    for (let i = 0; i < 10; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 4;
+      bursts.push({
+        x: e.clientX,
+        y: e.clientY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 2,
+        size: 5 + Math.random() * 7,
+        rot: Math.random() * Math.PI,
+        rotSpeed: (Math.random() - 0.5) * 0.3,
+        color: BURST_COLORS[Math.floor(Math.random() * BURST_COLORS.length)],
+        life: 1
+      });
+    }
+  });
+
+  let lastBurstTime = 0;
+  function animate(now) {
+    requestAnimationFrame(animate);
+    if (document.hidden) return;
+    if (now - lastBurstTime < 33) return; // 30fps
+    lastBurstTime = now;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // วาดกลีบระเบิด (เฉพาะตอนมี)
+    if (bursts.length === 0) return;
+
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const p = bursts[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.15;          // แรงโน้มถ่วง
+      p.vx *= 0.98;          // แรงต้านอากาศ
+      p.rot += p.rotSpeed;
+      p.life -= 0.012;       // ค่อย ๆ จางหาย
+
+      if (p.life <= 0) { bursts.splice(i, 1); continue; }
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -p.size / 2);
+      ctx.bezierCurveTo(p.size / 2, -p.size / 2, p.size / 2, p.size / 3, 0, p.size / 2);
+      ctx.bezierCurveTo(-p.size / 2, p.size / 3, -p.size / 2, -p.size / 2, 0, -p.size / 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  requestAnimationFrame(animate);
+})();
+
 /* ================= BACKGROUND MUSIC ================= */
 let bgMusic = null;
 
