@@ -612,6 +612,7 @@ addEventListener("resize", resize); resize();
     lastBurstTime = now;
 
     // วาดกลีบระเบิด (เฉพาะตอนมี)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (bursts.length === 0) return;
 
     for (let i = bursts.length - 1; i >= 0; i--) {
@@ -637,7 +638,7 @@ addEventListener("resize", resize); resize();
       ctx.fill();
       ctx.restore();
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
   }
   requestAnimationFrame(animate);
 })();
@@ -1100,6 +1101,8 @@ function askAI(question) {
     cleanupScript();
     statusElement.innerText = "❌ AI ตอบช้าเกินไป";
     answerElement.innerText = "หมดเวลารับคำตอบ (timeout)";
+    setMood(null);
+    sayBubble("ขอโทษนะ... ตอบไม่ทัน 😢"); 
   }, AI_TIMEOUT_MS);
 }
 
@@ -1226,6 +1229,7 @@ function autoMode() {
 autoMode(); // ตั้งตามเวลาจริงตอนเปิดเว็บ
 
 // สลับอัตโนมัติถ้าเปิดเว็บค้างข้ามช่วงเวลา
+let manualMode = false;   // ← ประกาศก่อน ✅
 setInterval(function () {
   if (!manualMode) autoMode();
 }, 60000);
