@@ -124,6 +124,23 @@ body {
   pointer-events: none;
 }
 
+/* ===== มาสคอตแอบมอง ===== */
+.mascot {
+  position: absolute;
+  top: -72px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  z-index: 5;
+  animation: mascotPeek 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 10px rgba(10,3,25,0.5));
+}
+@keyframes mascotPeek {
+  0%, 100% { transform: translateX(-50%) translateY(6px); }
+  50%      { transform: translateX(-50%) translateY(-4px); }
+}
+.mascot img { display: block; width: 100%; }
+  
 .robot {
   width: 86px; height: 86px;
   margin: 0 auto 14px;
@@ -292,27 +309,6 @@ h1 {
 
 <div class="app">
   <div class="card">
-    <!-- มาสคอตแอบมอง -->
-<div class="mascot">
-  <img src="mascot.png" alt="mascot">
-</div>
-    /* ===== มาสคอตแอบมอง ===== */
-.mascot {
-  position: absolute;
-  top: -72px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 110px;
-  z-index: 5;
-  animation: mascotPeek 4s ease-in-out infinite;
-  filter: drop-shadow(0 4px 10px rgba(10,3,25,0.5));
-}
-@keyframes mascotPeek {
-  0%, 100% { transform: translateX(-50%) translateY(6px); }
-  50%      { transform: translateX(-50%) translateY(-4px); }
-}
-.mascot img { display: block; width: 100%; }
-
     <div class="robot">🤖</div>
     <h1>Cucumber AI</h1>
     <div class="subtitle">🌸 ผู้ช่วยดูแลสวนแตงกวา ・ 夜桜</div>
