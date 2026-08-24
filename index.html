@@ -1145,10 +1145,8 @@ const idleLines = [
   "มีอะไรอยากรู้บอกมาสิ~",
   "🌸 ซากุระกำลังสวยเลย!"
 ];
-
-etInterval(function () {
-  if (!manualMode) autoMode();
-}, 60000);
+  
+setInterval(function () {
   // คุยเองเฉพาะตอนแอฟ ไม่มีงาน
   const isBusy = mascot.classList.contains("listening") ||
                  mascot.classList.contains("thinking");
@@ -1228,7 +1226,9 @@ function autoMode() {
 autoMode(); // ตั้งตามเวลาจริงตอนเปิดเว็บ
 
 // สลับอัตโนมัติถ้าเปิดเว็บค้างข้ามช่วงเวลา
-setInterval(autoMode, 60000);
+setInterval(function () {
+  if (!manualMode) autoMode();
+}, 60000);
 
 // กดปุ่ม = สลับเอง (และหยุด auto เพื่อไม่ให้สลับกลับ)
 let manualMode = false;
